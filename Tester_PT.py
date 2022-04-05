@@ -1,5 +1,6 @@
 import paho.mqtt.client as mqtt
 import json
+import os
 import time
 
 
@@ -38,10 +39,7 @@ client.publish(topic1, Payload)
 
 while True:
     # client.on_message = on_message
-
-
     Messwert=json.dumps({"Name": "Maschine 17", "Messwert": "20", "Einheit": "Celsius"})
-
     client.publish(topic2, Messwert)
     time.sleep(10)
 
