@@ -39,3 +39,6 @@ class Product_Demand_Digital_Twin(Digital_Twin):
     def submit_demand(self):
         print("Anfragegestellt")
 
+
+print("Hallo")
+
