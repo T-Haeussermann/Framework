@@ -4,20 +4,14 @@ import time
 
 class Digital_Twin:
     """Klasse Digital Twin, Quelle: https://medium.com/swlh/classes-subclasses-in-python-12b6013d9f3"""
-    def __init__(self, name, typ):
-        self.name = name
-        self.typ = typ
+    def __init__(self, Name, Typ):
+        self.Name = Name
+        self.Typ = Typ
 
-    # def on_msg(self):
-    #     print("Nachricht empfangen")
-    #
-    # def send_msg(self):
-    #     print("Nachricht gesendet")
-    #
-    # def evaluete_data(self):
-    #     print("Daten ausgewertet")
-
-    print("Test läuft")
+    def DT_Ablauf(self):
+        while True:
+            print(self.Name)
+            time.sleep(5)
 
 
 # class Asset_Digital_Twin(Digital_Twin):
