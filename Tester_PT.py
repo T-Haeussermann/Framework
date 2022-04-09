@@ -11,8 +11,9 @@ _port = 1883
 _timeout = 60
 
 
-"""PT-Name wird der Variablen Maschinenname zugewiesen"""
+"""PT-Name wird der Variablen Maschinenname und Typ zugewiesen"""
 Maschinenname = "Prüfmaschine"
+MaschinenTyp = "ADT"
 
 
 """Alle benötigten Topics werden hier definiert"""
@@ -45,7 +46,7 @@ client.connect(_host, _port, _timeout)
 
 
 
-Payload=json.dumps({"Name": Maschinenname, "Task": "Erstelle DT"})
+Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT"})
 client.publish(topicAnforderung, Payload)
 
 

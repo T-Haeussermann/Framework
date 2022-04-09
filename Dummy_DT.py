@@ -42,5 +42,4 @@ Payload=json.dumps({"Maschine-17": "Erstelle DT"})
 topic = "Laufumgebung"
 client.publish(topic, Payload)
 
-
 client.loop_forever()
