@@ -1,7 +1,7 @@
 import time
 
 class Digital_Twin:
-    """Klasse Digital Twin, Quelle: https://medium.com/swlh/classes-subclasses-in-python-12b6013d9f3"""
+    """Klasse normaler Twin ohne Fähigkeit Digital Twin"""
     def __init__(self, Name, Typ):
         self.Name = Name
         self.Typ = Typ
@@ -21,7 +21,6 @@ class Asset_Digital_Twin(Digital_Twin):
         while True:
             print(self.Name)
             time.sleep(5)
-
 
 
 class Product_Demand_Digital_Twin(Digital_Twin):

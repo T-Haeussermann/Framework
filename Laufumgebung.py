@@ -1,8 +1,6 @@
 import paho.mqtt.client as mqtt
 import json
 import threading
-import multiprocessing
-import asyncio
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 
 
@@ -30,6 +28,7 @@ def on_message(client, userdata, msg):
             print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufumgebung gesendet")
             DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
             DT_Thread.start()
+            print(threading.enumerate())
             print(DT_Thread.name + " name of thread")
 
         elif Nachricht["Typ"] == "PDDT":
