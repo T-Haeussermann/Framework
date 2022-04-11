@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import json
-import os
+from random import randrange
 import time
 
 
@@ -18,15 +18,15 @@ MaschinenTyp = "DT"
 
 
 """Alle benötigten Topics werden hier definiert"""
-topic = "Laufumgebung/" + Maschinenname + "/#"
-topicAnforderung = "Laufumgebung/" + Maschinenname + "/Anforderung"
-topicMesswerte = "Laufumgebung/" + Maschinenname + "/Messwert"
-topicHandlung = "Laufumgebung/" + Maschinenname + "/Handlung"
+topic = "Laufzeitumgebung/" + Maschinenname + "/#"
+topicAnforderung = "Laufzeitumgebung/" + Maschinenname + "/Anforderung"
+topicMesswerte = "Laufzeitumgebung/" + Maschinenname + "/Messwert"
+topicHandlung = "Laufzeitumgebung/" + Maschinenname + "/Handlung"
 
 def on_connect(client, userdata, flags, rc):
     """Verbindung mit dem MQTT-Broker 1 aufbauen"""
     print("Connected with result code " + str(rc))
-    client.subscribe("Laufumgebung/PT-17/Handlung")
+    client.subscribe("Laufzeitumgebung/PT-17/Handlung")
 
 
 
@@ -39,6 +39,7 @@ def on_message(client, userdata, msg):
     if msg["Ausführen"] == "Kühlmittel aktivieren":
         print("Ich aktiviere das Kühlmittel")
 
+
 client = mqtt.Client()
 client.username_pw_set(_username, _passwd)
 client.on_connect = on_connect
@@ -50,11 +51,9 @@ client.connect(_host, _port, _timeout)
 Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT"})
 client.publish(topicAnforderung, Payload)
 
-
-
 while True:
-    Messwert=json.dumps({"Name": Maschinenname, "Messwert": "20", "Einheit": "Celsius"})
+    Messwert=json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Celsius"})
     client.publish(topicMesswerte, Messwert)
-    client.on_message = on_message
     time.sleep(2)
-    client.loop_forever()
+    client.loop()
+

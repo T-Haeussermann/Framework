@@ -19,15 +19,15 @@ Bedarf = "Ich will"
 
 
 """Alle benötigten Topics werden hier definiert"""
-topic = "Laufumgebung/" + Maschinenname + "/#"
-topicAnforderung = "Laufumgebung/" + Maschinenname + "/Anforderung"
-topicMesswerte = "Laufumgebung/" + Maschinenname + "/Messwert"
-topicHandlung = "Laufumgebung/" + Maschinenname + "/Handlung"
+topic = "Laufzeitumgebung/" + Maschinenname + "/#"
+topicAnforderung = "Laufzeitumgebung/" + Maschinenname + "/Anforderung"
+topicMesswerte = "Laufzeitumgebung/" + Maschinenname + "/Messwert"
+topicHandlung = "Laufzeitumgebung/" + Maschinenname + "/Handlung"
 
 def on_connect(client, userdata, flags, rc):
     """Verbindung mit dem MQTT-Broker 1 aufbauen"""
     print("Connected with result code " + str(rc))
-    client.subscribe("Laufumgebung/PT-17/Handlung")
+    client.subscribe("Laufzeitumgebung/PT-17/Handlung")
 
 
 
@@ -54,8 +54,7 @@ client.publish(topicAnforderung, Payload)
 
 
 while True:
-    Messwert=json.dumps({"Name": Maschinenname, "Messwert": "20", "Einheit": "Celsius"})
+    Messwert=json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Celsius"})
     client.publish(topicMesswerte, Messwert)
-    client.on_message = on_message
     time.sleep(2)
-    client.loop_forever()
+    client.loop()
