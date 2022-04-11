@@ -11,9 +11,9 @@ class Digital_Twin:
     def DT_Ablauf(self):
         while True:
             print(self.Name)
-            Messwert = self.q.get()
-            print(Messwert)
-            print("der Wert oben sollte aus der Q sein")
+            # Messwert = self.q.get()
+            # print(Messwert)
+            # print("der Wert oben sollte aus der Q sein")
             # try:
             #     Messwert = self.q.get()
             #     print(Messwert)

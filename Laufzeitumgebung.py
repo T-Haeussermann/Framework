@@ -12,6 +12,8 @@ _host = "mq.jreichwald.de"
 _port = 1883
 _timeout = 60
 
+
+
 def mqtt_connection():
     client = mqtt.Client()
     client.username_pw_set(_username, _passwd)
@@ -24,18 +26,19 @@ def on_connect(client, userdata, flags, rc):
     print("Connected with result code " + str(rc))
     client.subscribe("Laufzeitumgebung/#")
 
-
 def on_message(client, userdata, msg):
     TopicUndNachricht = msg.topic + " : " + str(msg.payload.decode("utf-8")) #string
     Nachricht = json.loads(str(msg.payload.decode("utf-8")))
 
-    ListeDT = [n for DT in threading.enumerate().getName[]]
-    print(ListeDT)
+    ListeDT = []
+    for thread in threading.enumerate():
+        ListeDT.append(thread.name)
 
-    if ("/Anforderung" in TopicUndNachricht and Nachricht["Task"] == "Erstelle DT" and Nachricht["Name"] not in ListeDT):
+
+    if "/Anforderung" in TopicUndNachricht and Nachricht["Task"] == "Erstelle DT" and Nachricht["Name"] not in str(ListeDT):
         DT_nach_Typ_erstellen(Nachricht)
 
-    elif (Nachricht["Name"] in threading.enumerate()):
+    elif Nachricht["Name"] in str(ListeDT):
         print("Ich lege keinen neuen DT an")
 
     if "/Messwert" in TopicUndNachricht:
@@ -71,12 +74,6 @@ def DT_nach_Typ_erstellen(Nachricht):
         DT_Thread = threading.Thread(name=Neuer_DT.Name, target=Neuer_DT.DT_Ablauf)
         DT_Thread.start()
         print(DT_Thread.name + " name of thread")
-        test = threading.enumerate()
-        test2 = threading.enumerate()[4]
-        print(test)
-        if "Tester DT" in test2:
-            print("so gehts")
-        print(test2)
 
 
 def Laufzeitumgebung():
