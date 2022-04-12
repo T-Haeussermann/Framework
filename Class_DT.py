@@ -16,9 +16,9 @@ class Digital_Twin:
         while True:
             print(self.Name)
             print(self.Q)
-            # Messwert = self.Name.get()
-            # print(Messwert)
-            # print("der Wert oben sollte aus der Q sein")
+            Messwert = self.Q.get()
+            print(Messwert)
+            print("der Wert oben sollte aus der Q sein")
             # try:
             #     Messwert = self.Name.get()
             #     print(Messwert)
@@ -42,6 +42,8 @@ class Asset_Digital_Twin(Digital_Twin):
     def ADT_Ablauf(self):
         while True:
             print(self.Name)
+            Messwert = self.Q.get()
+            print(Messwert)
             time.sleep(5)
 
 
@@ -58,4 +60,6 @@ class Product_Demand_Digital_Twin(Digital_Twin):
     def PDDT_Ablauf(self):
         while True:
             print(self.Name)
+            Messwert = self.Q.get()
+            print(Messwert)
             time.sleep(5)

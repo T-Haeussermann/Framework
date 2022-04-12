@@ -52,7 +52,8 @@ Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstell
 client.publish(topicAnforderung, Payload)
 
 while True:
-    Messwert=json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Celsius"})
+    #Messwert=json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Celsius"})
+    Messwert = json.dumps({"Name": Maschinenname, "Messwert": 17, "Einheit": "Celsius"})
     client.publish(topicMesswerte, Messwert)
     time.sleep(2)
     client.loop()

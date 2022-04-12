@@ -40,11 +40,11 @@ def on_message(client, userdata, msg):
     elif "/Anforderung" in TopicUndNachricht and Nachricht["Task"] == "Erstelle DT" and Nachricht["Name"] in str(ListeDT):
         print("Ich lege keinen neuen DT an")
 
-    # if "/Messwert" in TopicUndNachricht:
-        # Empfänger = = y.find({ '_id': ObjectId(Nachricht["Name"]) }, {'_id':1})
+    if "/Messwert" in TopicUndNachricht:
+        Empfänger = Nachricht["Name"]
         # print(Nachricht["Messwert"])
-        # Messwert = Nachricht["Messwert"]
-        # Empfänger.Q.put(Messwert)
+        Messwert = Nachricht["Messwert"]
+        globals()[Empfänger].Q.put(Messwert)
 
 
 
