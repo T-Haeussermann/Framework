@@ -1,6 +1,6 @@
 import paho.mqtt.client as mqtt
 import json
-import os
+from random import randrange
 import time
 
 
@@ -13,7 +13,7 @@ _timeout = 60
 
 """PT-Name wird der Variablen Maschinenname und Typ zugewiesen. Variable Typ bestimmt welche Art von DT angelegt wird.
 Fähigkeit nur für ADTs ausfüllen und Bedarf nur für PDDTs ausfüllen."""
-Maschinenname = "Tester ADT"
+Maschinenname = "Tester_ADT"
 MaschinenTyp = "ADT"
 Fähigkeit = "Ich kann"
 

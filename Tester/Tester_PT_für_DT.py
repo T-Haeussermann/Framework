@@ -13,7 +13,7 @@ _timeout = 60
 
 """PT-Name wird der Variablen Maschinenname und Typ zugewiesen. Variable Typ bestimmt welche Art von DT angelegt wird.
 Fähigkeit nur für ADTs ausfüllen und Bedarf nur für PDDTs ausfüllen."""
-Maschinenname = "Tester DT"
+Maschinenname = "Tester_DT"
 MaschinenTyp = "DT"
 
 

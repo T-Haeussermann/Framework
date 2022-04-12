@@ -4,7 +4,6 @@ import threading
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from queue import Queue
 
-
 '''Variablen für MQTT-Broker'''
 _username = "dbt"
 _passwd = "dbt"
@@ -38,40 +37,42 @@ def on_message(client, userdata, msg):
     if "/Anforderung" in TopicUndNachricht and Nachricht["Task"] == "Erstelle DT" and Nachricht["Name"] not in str(ListeDT):
         DT_nach_Typ_erstellen(Nachricht)
 
-    elif Nachricht["Name"] in str(ListeDT):
+    elif "/Anforderung" in TopicUndNachricht and Nachricht["Task"] == "Erstelle DT" and Nachricht["Name"] in str(ListeDT):
         print("Ich lege keinen neuen DT an")
 
-    if "/Messwert" in TopicUndNachricht:
-        print(Nachricht["Messwert"])
-        Messwert = Nachricht
-        q.put(Messwert)
-        print(q)
-        print("Test")
+    # if "/Messwert" in TopicUndNachricht:
+        # Empfänger = = y.find({ '_id': ObjectId(Nachricht["Name"]) }, {'_id':1})
+        # print(Nachricht["Messwert"])
+        # Messwert = Nachricht["Messwert"]
+        # Empfänger.Q.put(Messwert)
 
 
 
 def DT_nach_Typ_erstellen(Nachricht):
     if Nachricht["Typ"] == "ADT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Fähigkeit"])
-        print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
-        DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
+        Neuer_ADT = Nachricht["Name"]
+        globals()[Neuer_ADT] = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Fähigkeit"])
+        print(globals()[Neuer_ADT].Name + " vom Typ " + globals()[Neuer_ADT].Typ + " Aus der Laufzeitumgebung gesendet")
+        DT_Thread = threading.Thread(name=globals()[Neuer_ADT].Name, target=globals()[Neuer_ADT].ADT_Ablauf)
         DT_Thread.start()
         print(DT_Thread.name + " name of thread")
 
     elif Nachricht["Typ"] == "PDDT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_PDDT = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Bedarf"])
-        print(Neuer_PDDT.Name + " vom Typ " + Neuer_PDDT.Typ + " Aus der Laufzeitumgebung gesendet")
-        DT_Thread = threading.Thread(name=Neuer_PDDT.Name, target=Neuer_PDDT.PDDT_Ablauf)
+        Neuer_PDDT = Nachricht["Name"]
+        globals()[Neuer_PDDT] = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Bedarf"])
+        print(globals()[Neuer_PDDT].Name + " vom Typ " + globals()[Neuer_PDDT].Typ + " Aus der Laufzeitumgebung gesendet")
+        DT_Thread = threading.Thread(name=globals()[Neuer_PDDT].Name, target=globals()[Neuer_PDDT].PDDT_Ablauf)
         DT_Thread.start()
         print(DT_Thread.name + " name of thread")
 
     elif Nachricht["Typ"] == "DT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_DT = Digital_Twin(Nachricht["Name"], Nachricht["Typ"], q)
-        print(Neuer_DT.Name + " vom Typ " + Neuer_DT.Typ + " Aus der Laufzeitumgebung gesendet")
-        DT_Thread = threading.Thread(name=Neuer_DT.Name, target=Neuer_DT.DT_Ablauf)
+        Neuer_DT = Nachricht["Name"]
+        globals()[Neuer_DT] = Digital_Twin(Nachricht["Name"], Nachricht["Typ"])
+        print(globals()[Neuer_DT].Name + " vom Typ " + globals()[Neuer_DT].Typ + " Aus der Laufzeitumgebung gesendet")
+        DT_Thread = threading.Thread(name=globals()[Neuer_DT].Name, target=globals()[Neuer_DT].DT_Ablauf)
         DT_Thread.start()
         print(DT_Thread.name + " name of thread")
 
@@ -83,5 +84,4 @@ def Laufzeitumgebung():
 
 
 if __name__ == '__main__':
-    q = Queue()
     Laufzeitumgebung()
