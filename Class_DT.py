@@ -1,5 +1,6 @@
-import time
 from queue import Queue
+import json
+#from Laufzeitumgebung import on_publish
 
 class Digital_Twin:
     """Klasse normaler Twin ohne Fähigkeit Digital Twin"""
@@ -7,26 +8,21 @@ class Digital_Twin:
         self.Name = Name
         self.Typ = Typ
         self.Q = Queue()
-
-    # def __repr__(self):
-    #     rep = self.Name
-    #     return rep
+        self.Topic = "Laufzeitumgebung/" + self.Name + "/Handlung"
 
     def DT_Ablauf(self):
         while True:
-            print(self.Name)
-            print(self.Q)
-            Messwert = self.Q.get()
-            print(Messwert)
-            print("der Wert oben sollte aus der Q sein")
-            # try:
-            #     Messwert = self.Name.get()
-            #     print(Messwert)
-            #     print("der Wert oben sollte aus der Q sein")
-            # except Exception:
-            #     print("Läuft nicht")
+            # print(self.Name)
+            # print(self.Q)
+            Nachricht = self.Q.get()
+            Messwert = Nachricht["Messwert"]
+            Messwert_str = str(Nachricht["Messwert"])
+            Einheit = Nachricht ["Einheit"]
+            print(Messwert_str + " " + Einheit + " von Typ DT")
+            # if Messwert > 10:
+            #     Payload = json.dumps({"Name": self.Name, "Ausführen": "Kühlmittel aktivieren"})
+                #on_publish(client,Topic, Payload)
 
-            time.sleep(5)
 
 
 class Asset_Digital_Twin(Digital_Twin):
@@ -35,16 +31,13 @@ class Asset_Digital_Twin(Digital_Twin):
         self.Q = Queue()
         self.Fähigkeit = Fähigkeit
 
-    # def __repr__(self):
-    #     rep = self.Name
-    #     return rep
-
     def ADT_Ablauf(self):
         while True:
-            print(self.Name)
-            Messwert = self.Q.get()
-            print(Messwert)
-            time.sleep(5)
+            # print(self.Name)
+            Nachricht = self.Q.get()
+            Messwert = str(Nachricht["Messwert"])
+            Einheit = Nachricht["Einheit"]
+            print(Messwert + " " + Einheit + " von Typ ADT")
 
 
 class Product_Demand_Digital_Twin(Digital_Twin):
@@ -53,13 +46,10 @@ class Product_Demand_Digital_Twin(Digital_Twin):
         self.Q = Queue()
         self.Bedarf = Bedarf
 
-    # def __repr__(self):
-    #     rep = self.Name
-    #     return rep
-
     def PDDT_Ablauf(self):
         while True:
-            print(self.Name)
-            Messwert = self.Q.get()
-            print(Messwert)
-            time.sleep(5)
+            # print(self.Name)
+            Nachricht = self.Q.get()
+            Messwert = str(Nachricht["Messwert"])
+            Einheit = Nachricht["Einheit"]
+            print(Messwert + " " + Einheit  + " von Typ PDDT")

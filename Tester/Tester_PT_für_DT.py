@@ -26,7 +26,7 @@ topicHandlung = "Laufzeitumgebung/" + Maschinenname + "/Handlung"
 def on_connect(client, userdata, flags, rc):
     """Verbindung mit dem MQTT-Broker 1 aufbauen"""
     print("Connected with result code " + str(rc))
-    client.subscribe("Laufzeitumgebung/PT-17/Handlung")
+    client.subscribe("Laufzeitumgebung/" + Maschinenname + "/Handlung")
 
 
 

@@ -4,7 +4,7 @@ import threading
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from queue import Queue
 
-'''Variablen für MQTT-Broker'''
+'''Variablen für MQTT-Broker 1'''
 _username = "dbt"
 _passwd = "dbt"
 _host = "mq.jreichwald.de"
@@ -18,6 +18,7 @@ def mqtt_connection():
     client.username_pw_set(_username, _passwd)
     client.on_connect = on_connect
     client.on_message = on_message
+    #client.on_publish = on_publish
     client.connect(_host, _port, _timeout)
     client.loop_forever()
 
@@ -42,9 +43,8 @@ def on_message(client, userdata, msg):
 
     if "/Messwert" in TopicUndNachricht:
         Empfänger = Nachricht["Name"]
-        # print(Nachricht["Messwert"])
-        Messwert = Nachricht["Messwert"]
-        globals()[Empfänger].Q.put(Messwert)
+        globals()[Empfänger].Q.put(Nachricht)
+        print(type(globals()))
 
 
 
