@@ -1,6 +1,6 @@
 from queue import Queue
 import json
-#from Laufzeitumgebung import on_publish
+from MQTT import MQTT
 
 class Digital_Twin:
     """Klasse normaler Twin ohne Fähigkeit Digital Twin"""
@@ -19,6 +19,7 @@ class Digital_Twin:
             Messwert_str = str(Nachricht["Messwert"])
             Einheit = Nachricht ["Einheit"]
             print(Messwert_str + " " + Einheit + " von Typ DT")
+            # Broker_1.publish("Test", "Test")
             # if Messwert > 10:
             #     Payload = json.dumps({"Name": self.Name, "Ausführen": "Kühlmittel aktivieren"})
                 #on_publish(client,Topic, Payload)

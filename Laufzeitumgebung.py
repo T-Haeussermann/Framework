@@ -1,63 +1,58 @@
-import paho.mqtt.client as mqtt
+import time
 import json
 import threading
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
-from queue import Queue
+from MQTT import MQTT
+import pandas
+from collections import ChainMap
 
 '''Variablen für MQTT-Broker 1'''
-_username = "dbt"
-_passwd = "dbt"
-_host = "mq.jreichwald.de"
-_port = 1883
-_timeout = 60
+_username1 = "dbt"
+_passwd1 = "dbt"
+_host1 = "mq.jreichwald.de"
+_port1 = 1883
+_timeout1 = 60
+_topic_sub1 = "Laufzeitumgebung/#"
 
 '''Variablen für MQTT-Broker 2'''
-_username = ""
-_passwd = ""
-_host = "127.0.0.1"
-_port = 1883
-_timeout = 60
+_username2 = ""
+_passwd2 = ""
+_host2 = "127.0.0.1"
+_port2 = 1883
+_timeout2 = 60
+_topic_sub2 = "Test"
 
-'''Variablen'''
+'''Weitere Variablen'''
 ListeDTs = []
 
 
 
-def mqtt_connection():
-    client = mqtt.Client()
-    client.username_pw_set(_username, _passwd)
-    client.on_connect = on_connect
-    client.on_message = on_message
-    #client.on_publish = on_publish
-    client.connect(_host, _port, _timeout)
-    client.loop_forever()
-
-def on_connect(client, userdata, flags, rc):
-    print("Connected with result code " + str(rc))
-    client.subscribe("Laufzeitumgebung/#")
-
-def on_message(client, userdata, msg):
-    TopicUndNachricht = msg.topic + " : " + str(msg.payload.decode("utf-8")) #string
-    Nachricht = json.loads(str(msg.payload.decode("utf-8")))
+def Nachricht_auswerten(TopicUndNachricht):
+    Topic = TopicUndNachricht["Topic"]
+    Nachricht = TopicUndNachricht["Nachricht"]
+    Nachricht = json.loads(Nachricht)
 
     ListeThreads = []
     for thread in threading.enumerate():
         ListeThreads.append(thread.name)
 
 
-    if "/Anforderung" in TopicUndNachricht and Nachricht["Task"] == "Erstelle DT" and Nachricht["Name"] not in str(ListeThreads):
-        DT_nach_Typ_erstellen(Nachricht)
+    if "/Anforderung" in Topic:
+            if Nachricht["Task"] == "Erstelle DT":
+                if Nachricht["Name"] not in str(ListeThreads):
+                    DT_nach_Typ_erstellen(Nachricht)
 
-    elif "/Anforderung" in TopicUndNachricht and Nachricht["Task"] == "Erstelle DT" and Nachricht["Name"] in str(ListeThreads):
+    elif "/Anforderung" in Topic and Nachricht["Task"] == "Erstelle DT" and Nachricht["Name"] in str(ListeThreads):
         print("Ich lege keinen neuen DT an")
 
-    if "/Messwert" in TopicUndNachricht:
+    if "/Messwert" in Topic:
         Empfänger = getTwin(Nachricht["Name"])
         Empfänger.Q.put(Nachricht)
 
 
 
 def DT_nach_Typ_erstellen(Nachricht):
+    '''Prüft die eingehende Nachricht auf den Typ des DTs und instanziiert davon abhänig einen ADT, PDDT oder DT aus der Klasse DT'''
     if Nachricht["Typ"] == "ADT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
         Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Fähigkeit"])
@@ -87,14 +82,37 @@ def DT_nach_Typ_erstellen(Nachricht):
 
 
 def getTwin(Name):
+    '''Sucht den eingehenden Namen in der Liste der DTs'''
     for Digital_Twin in ListeDTs:
         if Digital_Twin.Name == Name:
             return Digital_Twin
     return None
 
 def Laufzeitumgebung():
+    ''' Hauptprogramm, übernimmt die Zuteilung und Auswertung von Nachrichten'''
     print("ich bin die Laufzeitumgebung")
-    mqtt_connection()
+
+
+    '''MQTT Broker instanziieren und Threads starten'''
+    Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1)
+    Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2)
+    Broker_1.run()
+    Broker_2.run()
+
+    while True:
+
+        if Broker_1.Q.empty() == False:
+            TopicUndNachricht = Broker_1.Q.get()
+            TopicUndNachricht = json.loads(TopicUndNachricht)
+            Nachricht_auswerten(TopicUndNachricht)
+
+
+
+        # Nachricht2 = Broker_2.Q.get()
+        # print(Nachricht2)
+
+        time.sleep(2)
+    #mqtt_connection()
 
 
 
