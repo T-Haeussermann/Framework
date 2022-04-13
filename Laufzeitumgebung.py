@@ -11,6 +11,13 @@ _host = "mq.jreichwald.de"
 _port = 1883
 _timeout = 60
 
+'''Variablen für MQTT-Broker 2'''
+_username = ""
+_passwd = ""
+_host = "127.0.0.1"
+_port = 1883
+_timeout = 60
+
 '''Variablen'''
 ListeDTs = []
 
