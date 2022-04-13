@@ -3,8 +3,7 @@ import json
 import threading
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from MQTT import MQTT
-import pandas
-from collections import ChainMap
+from queue import Queue
 
 '''Variablen für MQTT-Broker 1'''
 _username1 = "dbt"
@@ -28,14 +27,17 @@ ListeDTs = []
 
 
 def Nachricht_auswerten(TopicUndNachricht):
+    TopicUndNachricht = json.loads(TopicUndNachricht)
     Topic = TopicUndNachricht["Topic"]
     Nachricht = TopicUndNachricht["Nachricht"]
-    Nachricht = json.loads(Nachricht)
+    Nachricht = eval(Nachricht)
+    #Nachricht = json.loads(TopicUndNachricht["Nachricht"])
+    print(Nachricht)
+    print(type(Nachricht))
 
     ListeThreads = []
     for thread in threading.enumerate():
         ListeThreads.append(thread.name)
-
 
     if "/Anforderung" in Topic:
             if Nachricht["Task"] == "Erstelle DT":
@@ -55,7 +57,7 @@ def DT_nach_Typ_erstellen(Nachricht):
     '''Prüft die eingehende Nachricht auf den Typ des DTs und instanziiert davon abhänig einen ADT, PDDT oder DT aus der Klasse DT'''
     if Nachricht["Typ"] == "ADT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Fähigkeit"])
+        Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, Nachricht["Fähigkeit"])
         ListeDTs.append(Neuer_ADT)
         print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
@@ -64,7 +66,7 @@ def DT_nach_Typ_erstellen(Nachricht):
 
     elif Nachricht["Typ"] == "PDDT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_PDDT = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Bedarf"])
+        Neuer_PDDT = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, Nachricht["Bedarf"])
         ListeDTs.append(Neuer_PDDT)
         print(Neuer_PDDT.Name + " vom Typ " + Neuer_PDDT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_PDDT.Name, target=Neuer_PDDT.PDDT_Ablauf)
@@ -73,7 +75,7 @@ def DT_nach_Typ_erstellen(Nachricht):
 
     elif Nachricht["Typ"] == "DT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_DT = Digital_Twin(Nachricht["Name"], Nachricht["Typ"])
+        Neuer_DT = Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2)
         ListeDTs.append(Neuer_DT)
         print(Neuer_DT.Name + " vom Typ " + Neuer_DT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_DT.Name, target=Neuer_DT.DT_Ablauf)
@@ -88,33 +90,26 @@ def getTwin(Name):
             return Digital_Twin
     return None
 
-def Laufzeitumgebung():
-    ''' Hauptprogramm, übernimmt die Zuteilung und Auswertung von Nachrichten'''
-    print("ich bin die Laufzeitumgebung")
+
+''' Hauptprogramm, übernimmt die Zuteilung und Auswertung von Nachrichten'''
+print("ich bin die Laufzeitumgebung")
+Q_Broker_1 = Queue()
+Q_Broker_2 = Queue()
 
 
-    '''MQTT Broker instanziieren und Threads starten'''
-    Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1)
-    Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2)
-    Broker_1.run()
-    Broker_2.run()
+'''MQTT Broker instanziieren und Threads starten'''
+Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1)
+Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2)
+Broker_1.run()
+Broker_2.run()
 
-    while True:
+while True:
 
-        if Broker_1.Q.empty() == False:
-            TopicUndNachricht = Broker_1.Q.get()
-            TopicUndNachricht = json.loads(TopicUndNachricht)
-            Nachricht_auswerten(TopicUndNachricht)
+    if Broker_1.Q.empty() == False:
+       TopicUndNachricht = Broker_1.Q.get()
+       Nachricht_auswerten(TopicUndNachricht)
 
 
 
         # Nachricht2 = Broker_2.Q.get()
         # print(Nachricht2)
-
-        time.sleep(2)
-    #mqtt_connection()
-
-
-
-if __name__ == '__main__':
-    Laufzeitumgebung()
