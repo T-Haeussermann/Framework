@@ -26,14 +26,7 @@ ListeDTs = []
 
 
 
-def Nachricht_auswerten(TopicUndNachricht):
-    TopicUndNachricht = json.loads(TopicUndNachricht)
-    Topic = TopicUndNachricht["Topic"]
-    Nachricht = TopicUndNachricht["Nachricht"]
-    Nachricht = eval(Nachricht)
-    #Nachricht = json.loads(TopicUndNachricht["Nachricht"])
-    print(Nachricht)
-    print(type(Nachricht))
+def Nachricht_auswerten(Topic, Nachricht):
 
     ListeThreads = []
     for thread in threading.enumerate():
@@ -48,8 +41,9 @@ def Nachricht_auswerten(TopicUndNachricht):
         print("Ich lege keinen neuen DT an")
 
     if "/Messwert" in Topic:
-        Empfänger = getTwin(Nachricht["Name"])
-        Empfänger.Q.put(Nachricht)
+        Name = Nachricht["Name"]
+        Empfaenger = getTwin(Name)
+        Empfaenger.Q.put(Nachricht)
 
 
 
@@ -107,7 +101,11 @@ while True:
 
     if Broker_1.Q.empty() == False:
        TopicUndNachricht = Broker_1.Q.get()
-       Nachricht_auswerten(TopicUndNachricht)
+       TopicUndNachricht = json.loads(TopicUndNachricht)
+       Topic = TopicUndNachricht["Topic"]
+       Nachricht = str(TopicUndNachricht["Nachricht"]).strip("'<>() ").replace('\'', '\"')
+       Nachricht = json.loads(Nachricht)
+       Nachricht_auswerten(Topic, Nachricht)
 
 
 
