@@ -25,7 +25,6 @@ _topic_sub2 = "Test"
 ListeDTs = []
 
 
-
 def Nachricht_auswerten(Topic, Nachricht):
 
     ListeThreads = []
@@ -43,7 +42,8 @@ def Nachricht_auswerten(Topic, Nachricht):
     if "/Messwert" in Topic:
         Name = Nachricht["Name"]
         Empfaenger = getTwin(Name)
-        Empfaenger.Q.put(Nachricht)
+        if Empfaenger is not None:
+            Empfaenger.Q.put(Nachricht)
 
 
 
@@ -84,8 +84,7 @@ def getTwin(Name):
             return Digital_Twin
     return None
 
-
-''' Hauptprogramm, übernimmt die Zuteilung und Auswertung von Nachrichten'''
+''' Hauptprogramm, übernimmt die Zuteilung von Nachrichten und Auswertung des Nachrichtentyps'''
 print("ich bin die Laufzeitumgebung")
 Q_Broker_1 = Queue()
 Q_Broker_2 = Queue()
@@ -98,16 +97,34 @@ Broker_1.run()
 Broker_2.run()
 
 while True:
+    TopicUndNachricht = Broker_1.Q.get()
+    TopicUndNachricht = json.loads(TopicUndNachricht)
+    Topic = TopicUndNachricht["Topic"]
+    Nachricht = str(TopicUndNachricht["Nachricht"])
+    print(Nachricht)
+    print(type(Nachricht))
+    Nachricht = json.loads(Nachricht)
+    print(Nachricht)
+    print(type(Nachricht))
+    Nachricht_auswerten(Topic, Nachricht)
 
-    if Broker_1.Q.empty() == False:
-       TopicUndNachricht = Broker_1.Q.get()
-       TopicUndNachricht = json.loads(TopicUndNachricht)
-       Topic = TopicUndNachricht["Topic"]
-       Nachricht = str(TopicUndNachricht["Nachricht"]).strip("'<>() ").replace('\'', '\"')
-       Nachricht = json.loads(Nachricht)
-       Nachricht_auswerten(Topic, Nachricht)
+    # if Broker_1.Q.empty() == False:
+    #    TopicUndNachricht = Broker_1.Q.get()
+    #    TopicUndNachricht = json.loads(TopicUndNachricht)
+    #    Topic = TopicUndNachricht["Topic"]
+    #    Nachricht = str(TopicUndNachricht["Nachricht"])
+    #    print(Nachricht)
+    #    print(type(Nachricht))
+    #    Nachricht = json.loads(Nachricht)
+    #    print(Nachricht)
+    #    print(type(Nachricht))
+    #    Nachricht_auswerten(Topic, Nachricht)
+
+
 
 
 
         # Nachricht2 = Broker_2.Q.get()
         # print(Nachricht2)
+
+

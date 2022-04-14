@@ -16,13 +16,14 @@ class Digital_Twin:
 
         while True:
             Nachricht = self.Q.get()
+            Messwert = Nachricht["Messwert"]
             Messwert_str = str(Nachricht["Messwert"])
             Einheit = Nachricht ["Einheit"]
             print(Messwert_str + " " + Einheit + " von Typ DT")
-            self.Broker_1.publish(self.Topic, "DDT")
-            # if Messwert > 10:
-            #     Payload = json.dumps({"Name": self.Name, "Ausführen": "Kühlmittel aktivieren"})
-                #on_publish(client,Topic, Payload)
+            self.Broker_1.publish(self.Topic, "Das läuft von Instanz zu Instanz")
+            if Messwert > 10:
+                Payload = json.dumps({"Name": self.Name, "Ausführen": "Kühlmittel aktivieren"})
+                self.Broker_1.publish(self.Topic, Payload)
 
 
 
