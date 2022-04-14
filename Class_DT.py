@@ -19,11 +19,11 @@ class Digital_Twin:
             Messwert = Nachricht["Messwert"]
             Messwert_str = str(Nachricht["Messwert"])
             Einheit = Nachricht ["Einheit"]
-            print(Messwert_str + " " + Einheit + " von Typ DT")
+            print(Messwert_str + " " + Einheit + self.Typ)
             self.Broker_1.publish(self.Topic, "Das läuft von Instanz zu Instanz")
-            if Messwert > 10:
-                Payload = json.dumps({"Name": self.Name, "Ausführen": "Kühlmittel aktivieren"})
-                self.Broker_1.publish(self.Topic, Payload)
+            # if Messwert > 10:
+            #     Payload = json.dumps({"Name": self.Name, "Ausführen": "Kühlmittel aktivieren"})
+            #     self.Broker_1.publish(self.Topic, Payload)
 
 
 
@@ -38,7 +38,7 @@ class Asset_Digital_Twin(Digital_Twin):
             Nachricht = self.Q.get()
             Messwert = str(Nachricht["Messwert"])
             Einheit = Nachricht["Einheit"]
-            print(Messwert + " " + Einheit + " von Typ ADT")
+            print(Messwert + " " + Einheit + self.Typ)
             self.Broker_1.publish(self.Topic, "ADT")
 
 
@@ -53,5 +53,5 @@ class Product_Demand_Digital_Twin(Digital_Twin):
             Nachricht = self.Q.get()
             Messwert = str(Nachricht["Messwert"])
             Einheit = Nachricht["Einheit"]
-            print(Messwert + " " + Einheit  + " von Typ PDDT")
+            print(Messwert + " " + Einheit  + self.Typ)
             self.Broker_1.publish(self.Topic, "PDDT")

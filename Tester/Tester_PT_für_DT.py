@@ -45,16 +45,18 @@ client.username_pw_set(_username, _passwd)
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect(_host, _port, _timeout)
-
+client.loop()
 
 
 Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT"})
 client.publish(topicAnforderung, Payload)
 
+
 while True:
-    Messwert=json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Celsius"})
+
     #Messwert = json.dumps({"Name": Maschinenname, "Messwert": 17, "Einheit": "Celsius"})
+    Messwert = json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Celsius"})
     client.publish(topicMesswerte, Messwert)
-    time.sleep(1)
-    client.loop()
+    time.sleep(2)
+
 

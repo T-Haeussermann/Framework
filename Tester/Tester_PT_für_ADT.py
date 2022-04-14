@@ -45,6 +45,7 @@ client.username_pw_set(_username, _passwd)
 client.on_connect = on_connect
 client.on_message = on_message
 client.connect(_host, _port, _timeout)
+client.loop()
 
 
 
@@ -58,4 +59,4 @@ while True:
     Messwert = json.dumps({"Name": Maschinenname, "Messwert": 69, "Einheit": "Newton"})
     client.publish(topicMesswerte, Messwert)
     time.sleep(2)
-    client.loop()
+
