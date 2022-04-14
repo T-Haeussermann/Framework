@@ -2,7 +2,7 @@
 import time
 from fastapi import FastAPI
 import uvicorn
-import threading
+import multiprocessing
 
 App = FastAPI()
 
@@ -11,12 +11,14 @@ App = FastAPI()
 def get_twins():
    return {"Test"}
 
+def uvi_run():
+   uvicorn.run("FastAPI:App", host='127.0.0.1', port=8000, debug=True)
+
 if __name__ == "__main__":
-    uvicorn.run("FastAPI:App", host='127.0.0.1', port=8000, debug=True)
-
-
-
-# Test = threading.Thread(target=test())
-# Test.start()
+   API = multiprocessing.Process(target=uvi_run)
+   API.start()
+   while True:
+      print("Test")
+      time.sleep(2)
 
 
