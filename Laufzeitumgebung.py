@@ -4,6 +4,7 @@ import threading
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from MQTT import MQTT
 from queue import Queue
+from ast import literal_eval
 
 '''Variablen für MQTT-Broker 1'''
 _username1 = "dbt"
@@ -26,6 +27,9 @@ ListeDTs = []
 
 
 def Nachricht_auswerten(Topic, Nachricht):
+    # Topic = TopicUndNachricht["Topic"]
+    # Nachricht = TopicUndNachricht["Nachricht"]
+    # Nachricht = json.loads(Nachricht)
 
     ListeThreads = []
     for thread in threading.enumerate():
@@ -98,33 +102,20 @@ Broker_2.run()
 
 while True:
     TopicUndNachricht = Broker_1.Q.get()
-    TopicUndNachricht = json.loads(TopicUndNachricht)
-    Topic = TopicUndNachricht["Topic"]
-    Nachricht = str(TopicUndNachricht["Nachricht"])
-    print(Nachricht)
-    print(type(Nachricht))
-    Nachricht = json.loads(Nachricht)
-    print(Nachricht)
-    print(type(Nachricht))
+    Topic = TopicUndNachricht[0]
+
+    '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine json kompatiblen Nachrichten versendet werden'''
+    try:
+        Nachricht = json.loads(TopicUndNachricht[1])
+
+    except:
+        print("Kein json kompatibler String")
+        pass
+
     Nachricht_auswerten(Topic, Nachricht)
 
-    # if Broker_1.Q.empty() == False:
-    #    TopicUndNachricht = Broker_1.Q.get()
-    #    TopicUndNachricht = json.loads(TopicUndNachricht)
-    #    Topic = TopicUndNachricht["Topic"]
-    #    Nachricht = str(TopicUndNachricht["Nachricht"])
-    #    print(Nachricht)
-    #    print(type(Nachricht))
-    #    Nachricht = json.loads(Nachricht)
-    #    print(Nachricht)
-    #    print(type(Nachricht))
-    #    Nachricht_auswerten(Topic, Nachricht)
+    # Nachricht2 = Broker_2.Q.get()
+    # print(Nachricht2)
 
-
-
-
-
-        # Nachricht2 = Broker_2.Q.get()
-        # print(Nachricht2)
 
 
