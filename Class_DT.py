@@ -22,10 +22,9 @@ class Digital_Twin:
             Messwert_str = str(Nachricht["Messwert"])
             Einheit = Nachricht ["Einheit"]
             print(Messwert_str + " " + Einheit + " von einem " + self.Typ + " gemessen")
-            #self.Broker_1.publish(self.Topic, "Das läuft von Instanz zu Instanz")
-            # if Messwert > 10:
-            #     Payload = json.dumps({"Name": self.Name, "Ausführen": "Kühlmittel aktivieren"})
-            #     self.Broker_1.publish(self.Topic, Payload)
+            if Messwert > 10:
+                Payload = json.dumps({"Name": self.Name, "Ausführen": "Kühlmittel aktivieren"})
+                self.Broker_1.publish(self.Topic, Payload)
 
 
 
@@ -42,7 +41,9 @@ class Asset_Digital_Twin(Digital_Twin):
             Messwert_str = str(Nachricht["Messwert"])
             Einheit = Nachricht["Einheit"]
             print(Messwert_str + " " + Einheit + " von einem " + self.Typ + " gemessen")
-            # self.Broker_1.publish(self.Topic, "ADT") Achtung muss json sein
+            if Messwert > 10:
+                Payload = json.dumps({"Name": self.Name, "Ausführen": "Kraft erhöhen"})
+                self.Broker_1.publish(self.Topic, Payload)
 
 
 class Product_Demand_Digital_Twin(Digital_Twin):
@@ -58,4 +59,6 @@ class Product_Demand_Digital_Twin(Digital_Twin):
             Messwert_str = str(Nachricht["Messwert"])
             Einheit = Nachricht["Einheit"]
             print(Messwert_str + " " + Einheit + " von einem " + self.Typ + " gemessen")
-            #self.Broker_1.publish(self.Topic, "PDDT") Achtung muss json sein
+            if Messwert > 10:
+                Payload = json.dumps({"Name": self.Name, "Ausführen": "Gewicht erhöhen"})
+                self.Broker_1.publish(self.Topic, Payload)

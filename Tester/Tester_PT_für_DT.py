@@ -26,7 +26,7 @@ topicHandlung = "Laufzeitumgebung/" + Maschinenname + "/Handlung"
 def on_connect(client, userdata, flags, rc):
     """Verbindung mit dem MQTT-Broker 1 aufbauen"""
     print("Connected with result code " + str(rc))
-    client.subscribe("Laufzeitumgebung/" + Maschinenname + "/Handlung")
+    client.subscribe(topicHandlung)
 
 
 
@@ -35,7 +35,6 @@ def on_message(client, userdata, msg):
     z. B. Kühlmittelzuführ aktivieren"""
     #print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
     msg = json.loads(str(msg.payload.decode("utf-8")))
-    print(msg)
     if msg["Ausführen"] == "Kühlmittel aktivieren":
         print("Ich aktiviere das Kühlmittel")
 
@@ -43,17 +42,17 @@ def on_message(client, userdata, msg):
 client = mqtt.Client()
 client.username_pw_set(_username, _passwd)
 client.on_connect = on_connect
+client.loop_start()
 client.on_message = on_message
 client.connect(_host, _port, _timeout)
-client.loop()
 
 
 Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT"})
-client.publish(topicAnforderung, Payload)
-
-
+i = 0
 while True:
-
+    if i < 2:
+        client.publish(topicAnforderung, Payload)
+        i = i + 1
     #Messwert = json.dumps({"Name": Maschinenname, "Messwert": 17, "Einheit": "Celsius"})
     Messwert = json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Celsius"})
     client.publish(topicMesswerte, Messwert)

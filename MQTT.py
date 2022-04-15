@@ -24,17 +24,9 @@ class MQTT:
     def on_message(self, client, userdata, msg):
         Topic = msg.topic
         Nachricht = str(msg.payload.decode("utf-8"))
-        # TopicUndNachricht = json.dumps({"Topic": Topic, "Nachricht": Nachricht})
-        # print(type(Topic))
-        # print(type(Nachricht))
-        # print(type(TopicUndNachricht))
-        '''Alternative:'''
         TopicUndNachricht = []
         TopicUndNachricht.append(Topic)
         TopicUndNachricht.append(Nachricht)
-        # print(type(TopicUndNachricht))
-        # print(type(TopicUndNachricht[0]))
-        # print(type(TopicUndNachricht[1]))
         self.Q.put(TopicUndNachricht)
 
     def run(self):
