@@ -1,10 +1,9 @@
-import time
 import json
 import threading
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from MQTT import MQTT
 from queue import Queue
-from ast import literal_eval
+
 
 '''Variablen für MQTT-Broker 1'''
 _username1 = "dbt"
@@ -88,6 +87,7 @@ def getTwin(Name):
             return Digital_Twin
     return None
 
+
 ''' Hauptprogramm, übernimmt die Zuteilung von Nachrichten und Auswertung des Nachrichtentyps'''
 print("ich bin die Laufzeitumgebung")
 Q_Broker_1 = Queue()
@@ -100,22 +100,24 @@ Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2)
 Broker_1.run()
 Broker_2.run()
 
+
 while True:
+    print(str(len(ListeDTs)) + " DTs laufen")
+
     TopicUndNachricht = Broker_1.Q.get()
     Topic = TopicUndNachricht[0]
 
     '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine json kompatiblen Nachrichten versendet werden'''
     try:
         Nachricht = json.loads(TopicUndNachricht[1])
-
+        Nachricht_auswerten(Topic, Nachricht)
     except:
         print("Kein json kompatibler String")
-        pass
 
-    Nachricht_auswerten(Topic, Nachricht)
 
-    # Nachricht2 = Broker_2.Q.get()
-    # print(Nachricht2)
+
+
+
 
 
 
