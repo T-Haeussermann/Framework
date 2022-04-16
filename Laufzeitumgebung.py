@@ -3,6 +3,9 @@ import threading
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from MQTT import MQTT
 from queue import Queue
+import uvicorn
+from fastapi import FastAPI
+from API.Class_Server import Server
 
 
 '''Variablen für MQTT-Broker 1'''
@@ -87,6 +90,10 @@ def getTwin(Name):
             return Digital_Twin
     return None
 
+# def AnzahlTwins():
+#     AnzahlTwins = len(ListeDTs)
+#     return AnzahlTwins
+
 
 ''' Hauptprogramm, übernimmt die Zuteilung von Nachrichten und Auswertung des Nachrichtentyps'''
 print("ich bin die Laufzeitumgebung")
@@ -101,22 +108,29 @@ Broker_1.run()
 Broker_2.run()
 
 
-while True:
-    print(str(len(ListeDTs)) + " DTs laufen")
 
-    TopicUndNachricht = Broker_1.Q.get()
-    Topic = TopicUndNachricht[0]
+'''Server für API instanziieren
+https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread'''
+config = uvicorn.Config("API.App:App", host="127.0.0.1", port=8000, log_level="info")
+server = Server(config=config)
 
-    '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine json kompatiblen Nachrichten versendet werden'''
-    try:
-        Nachricht = json.loads(TopicUndNachricht[1])
-        Nachricht_auswerten(Topic, Nachricht)
-    except:
-        print("Kein json kompatibler String")
+with server.run_in_thread():
+    # Server is started.
+    while True:
+        AnzahlTwins = len(ListeDTs)
+        print(str(len(ListeDTs)) + " DTs laufen")
 
+        TopicUndNachricht = Broker_1.Q.get()
+        Topic = TopicUndNachricht[0]
 
+        '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine json kompatiblen Nachrichten versendet werden'''
+        try:
+            Nachricht = json.loads(TopicUndNachricht[1])
+            Nachricht_auswerten(Topic, Nachricht)
+        except:
+            print("Kein json kompatibler String")
 
-
+    # Server stopped.
 
 
 
