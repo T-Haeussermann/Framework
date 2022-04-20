@@ -15,6 +15,9 @@ _timeout = 60
 Fähigkeit nur für ADTs ausfüllen und Bedarf nur für PDDTs ausfüllen."""
 Maschinenname = "Tester_PDDT"
 MaschinenTyp = "PDDT"
+KritWert = 60
+Operator = ">"
+Handlung = "Gewicht erhoehen"
 Bedarf = "Ich will"
 
 
@@ -36,7 +39,7 @@ def on_message(client, userdata, msg):
     z. B. Kühlmittelzuführ aktivieren"""
     #print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
     msg = json.loads(str(msg.payload.decode("utf-8")))
-    if msg["Ausführen"] == "Gewicht erhöhen":
+    if msg["Ausführen"] == Handlung:
         print("Ich nehme zu")
 
 
@@ -49,7 +52,8 @@ client.connect(_host, _port, _timeout)
 
 
 
-Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT", "Bedarf": Bedarf})
+Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT", "Kritischer Wert": KritWert,
+                    "Operator": Operator, "Handlung": Handlung, "Bedarf": Bedarf})
 i = 0
 while True:
     if i < 2:

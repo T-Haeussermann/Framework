@@ -58,9 +58,9 @@ def DT_nach_Typ_erstellen(Nachricht):
     '''Prüft die eingehende Nachricht auf den Typ des DTs und instanziiert davon abhänig einen ADT, PDDT oder DT aus der Klasse DT'''
     if Nachricht["Typ"] == "ADT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, Nachricht["Fähigkeit"])
+        Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, Nachricht["Kritischer Wert"],
+                                Nachricht["Operator"], Nachricht["Handlung"], Nachricht["Fähigkeit"])
         ListeDTs.append(Neuer_ADT)
-        AnzahlTwins = len(ListeDTs)
         print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
         DT_Thread.start()
@@ -68,9 +68,9 @@ def DT_nach_Typ_erstellen(Nachricht):
 
     elif Nachricht["Typ"] == "PDDT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_PDDT = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, Nachricht["Bedarf"])
+        Neuer_PDDT = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, Nachricht["Kritischer Wert"],
+                                Nachricht["Operator"], Nachricht["Handlung"], Nachricht["Bedarf"])
         ListeDTs.append(Neuer_PDDT)
-        AnzahlTwins = len(ListeDTs)
         print(Neuer_PDDT.Name + " vom Typ " + Neuer_PDDT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_PDDT.Name, target=Neuer_PDDT.PDDT_Ablauf)
         DT_Thread.start()
@@ -78,9 +78,9 @@ def DT_nach_Typ_erstellen(Nachricht):
 
     elif Nachricht["Typ"] == "DT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_DT = Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2)
+        Neuer_DT = Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, Nachricht["Kritischer Wert"],
+                                Nachricht["Operator"], Nachricht["Handlung"])
         ListeDTs.append(Neuer_DT)
-        AnzahlTwins = len(ListeDTs)
         print(Neuer_DT.Name + " vom Typ " + Neuer_DT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_DT.Name, target=Neuer_DT.DT_Ablauf)
         DT_Thread.start()
@@ -93,11 +93,6 @@ def getTwin(Name):
         if Digital_Twin.Name == Name:
             return Digital_Twin
     return None
-
-# def AnzahlTwins():
-#     '''Bestimmt die Anzahl der aktiven DTs als Integner und gibt den Wert zurück'''
-#     AnzahlTwins = len(ListeDTs)
-#     return AnzahlTwins
 
 
 ''' Hauptprogramm, übernimmt die Zuteilung von Nachrichten und Auswertung des Nachrichtentyps'''
@@ -112,7 +107,7 @@ Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2)
 Broker_1.run()
 Broker_2.run()
 
-'''App für Get-Request instanziiren'''
+'''App für Get-Request instanziieren'''
 App = FastAPI()
 
 '''Zugreifen über http://127.0.0.1:8000/docs#/'''
@@ -122,7 +117,6 @@ async def Anzahl_Twins():
 
 '''Server für API instanziieren
 https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread'''
-# config = uvicorn.Config("API.App:App", host="127.0.0.1", port=8000, log_level="info")
 config = uvicorn.Config(App, host="127.0.0.1", port=8000, log_level="info")
 server = Server(config=config)
 
