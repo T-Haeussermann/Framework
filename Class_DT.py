@@ -22,7 +22,7 @@ class Digital_Twin:
             Messwert_str = str(Nachricht["Messwert"])
             Einheit = Nachricht ["Einheit"]
             print(Messwert_str + " " + Einheit + " von einem " + self.Typ + " gemessen")
-            if Messwert > 10:
+            if Messwert > 50:
                 Payload = json.dumps({"Name": self.Name, "Ausführen": "Kühlmittel aktivieren"})
                 self.Broker_1.publish(self.Topic, Payload)
 
