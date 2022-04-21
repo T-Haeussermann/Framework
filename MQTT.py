@@ -2,13 +2,12 @@ import paho.mqtt.client as mqtt
 from queue import Queue
 
 class MQTT:
-    def __init__(self, _username, _passwd, _host, _port, _topic_sub, lock):
+    def __init__(self, _username, _passwd, _host, _port, _topic_sub):
         self._username = _username
         self._passwd = _passwd
         self._host = _host
         self._port = _port
         self._topic_Sub = _topic_sub
-        self.lock = lock
         self.Q = Queue()
         self._timeout = 60
         self.client = mqtt.Client()
@@ -18,10 +17,8 @@ class MQTT:
         self.client.subscribe(self._topic_Sub)
 
     def publish(self, Topic, Payload):
-        self.lock.acquire()
         self.client.publish(Topic, Payload)
-        self.lock.release()
-        print("Nachricht gepublisht und Lock gelöst")
+        print("Nachricht gepublisht")
 
     def on_message(self, client, userdata, msg):
         Topic = msg.topic

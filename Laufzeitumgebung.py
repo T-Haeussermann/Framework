@@ -1,4 +1,5 @@
 import json
+import signal
 import threading
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from MQTT import MQTT
@@ -7,6 +8,7 @@ import uvicorn
 from fastapi import FastAPI
 from API.Class_Server import Server
 from Class_Influxdb import Influxdb
+
 
 
 '''Variablen für MQTT-Broker 1'''
@@ -104,22 +106,20 @@ def getTwin(Name):
 ''' Hauptprogramm, übernimmt die Zuteilung von Nachrichten und Auswertung des Nachrichtentyps'''
 print("ich bin die Laufzeitumgebung")
 
-'''Queues und Locks für MQTT-Broker Verbindungen erzeugen '''
+'''Queues für MQTT-Broker Verbindungen erzeugen '''
 Q_Broker_1 = Queue()
 Q_Broker_2 = Queue()
-Lock_Broker_1 = threading.Lock()
-Lock_Broker_2 = threading.Lock()
 
 
 '''MQTT Broker instanziieren und Threads starten'''
-Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1, Lock_Broker_1)
-Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2, Lock_Broker_2)
+Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1)
+Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2)
 Broker_1.run()
 Broker_2.run()
 
 '''Lock für DB erzeugen und Verbindung zur Datenbank instanziieren'''
 Lock_DB_Client = threading.Lock()
-DB_Client = Influxdb(url, token, org, bucket, Lock_DB_Client )
+DB_Client = Influxdb(url, token, org, bucket, Lock_DB_Client)
 
 
 '''App für Get-Request instanziieren'''
@@ -140,7 +140,6 @@ with server.run_in_thread():
     while True:
         AnzahlTwins = len(ListeDTs)
         print(str(len(ListeDTs)) + " DTs laufen")
-
         TopicUndNachricht = Broker_1.Q.get()
         Topic = TopicUndNachricht[0]
 
