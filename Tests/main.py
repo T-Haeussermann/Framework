@@ -1,7 +1,0 @@
-
-
-
-while True:
-    print("Test")
-
-
