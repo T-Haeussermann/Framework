@@ -6,6 +6,7 @@ from queue import Queue
 import uvicorn
 from fastapi import FastAPI
 from API.Class_Server import Server
+from Class_Influxdb import Influxdb
 
 
 '''Variablen für MQTT-Broker 1'''
@@ -24,15 +25,18 @@ _port2 = 1883
 _timeout2 = 60
 _topic_sub2 = "Test"
 
+'''Variablen für Influxdb'''
+url = "http://localhost:8086"
+token = "-DnCnjPN_w0JbBzX6cPLMqdoSyJsne31lj4985R88bRj1pCp_Bi_434T5dwHgq1klKGLumx2joHU65P3l1M0cQ=="
+org = "Laufzeitumgebung"
+bucket = "Messwerte"
+
 '''Weitere Variablen'''
 ListeDTs = []
 
 
 def Nachricht_auswerten(Topic, Nachricht):
     '''Wertet die eingehende Nachricht anhand des Topics aus und leitet die DT-Erstellung oder Messwertzuordnung ein'''
-    # Topic = TopicUndNachricht["Topic"]
-    # Nachricht = TopicUndNachricht["Nachricht"]
-    # Nachricht = json.loads(Nachricht)
 
     ListeThreads = []
     for thread in threading.enumerate():
@@ -58,8 +62,9 @@ def DT_nach_Typ_erstellen(Nachricht):
     '''Prüft die eingehende Nachricht auf den Typ des DTs und instanziiert davon abhänig einen ADT, PDDT oder DT aus der Klasse DT'''
     if Nachricht["Typ"] == "ADT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, Nachricht["Kritischer Wert"],
-                                Nachricht["Operator"], Nachricht["Handlung"], Nachricht["Fähigkeit"])
+        Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, DB_Client,
+                                       Nachricht["Kritischer Wert"], Nachricht["Operator"], Nachricht["Handlung"],
+                                       Nachricht["Fähigkeit"])
         ListeDTs.append(Neuer_ADT)
         print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
@@ -68,8 +73,9 @@ def DT_nach_Typ_erstellen(Nachricht):
 
     elif Nachricht["Typ"] == "PDDT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_PDDT = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, Nachricht["Kritischer Wert"],
-                                Nachricht["Operator"], Nachricht["Handlung"], Nachricht["Bedarf"])
+        Neuer_PDDT = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, DB_Client,
+                                                 Nachricht["Kritischer Wert"], Nachricht["Operator"],
+                                                 Nachricht["Handlung"], Nachricht["Bedarf"])
         ListeDTs.append(Neuer_PDDT)
         print(Neuer_PDDT.Name + " vom Typ " + Neuer_PDDT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_PDDT.Name, target=Neuer_PDDT.PDDT_Ablauf)
@@ -78,8 +84,8 @@ def DT_nach_Typ_erstellen(Nachricht):
 
     elif Nachricht["Typ"] == "DT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_DT = Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, Nachricht["Kritischer Wert"],
-                                Nachricht["Operator"], Nachricht["Handlung"])
+        Neuer_DT = Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, DB_Client,
+                                Nachricht["Kritischer Wert"], Nachricht["Operator"], Nachricht["Handlung"])
         ListeDTs.append(Neuer_DT)
         print(Neuer_DT.Name + " vom Typ " + Neuer_DT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_DT.Name, target=Neuer_DT.DT_Ablauf)
@@ -97,20 +103,29 @@ def getTwin(Name):
 
 ''' Hauptprogramm, übernimmt die Zuteilung von Nachrichten und Auswertung des Nachrichtentyps'''
 print("ich bin die Laufzeitumgebung")
+
+'''Queues und Locks für MQTT-Broker Verbindungen erzeugen '''
 Q_Broker_1 = Queue()
 Q_Broker_2 = Queue()
+Lock_Broker_1 = threading.Lock()
+Lock_Broker_2 = threading.Lock()
 
 
 '''MQTT Broker instanziieren und Threads starten'''
-Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1)
-Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2)
+Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1, Lock_Broker_1)
+Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2, Lock_Broker_2)
 Broker_1.run()
 Broker_2.run()
+
+'''Lock für DB erzeugen und Verbindung zur Datenbank instanziieren'''
+Lock_DB_Client = threading.Lock()
+DB_Client = Influxdb(url, token, org, bucket, Lock_DB_Client )
+
 
 '''App für Get-Request instanziieren'''
 App = FastAPI()
 
-'''Zugreifen über http://127.0.0.1:8000/docs#/'''
+'''API für den Zugriff auf die Laufzeitumgebung. Zugreifen über http://127.0.0.1:8000/docs#/'''
 @App.get("/get-twin-names-api/")
 async def Anzahl_Twins():
    return json.dumps({"Anzahl Twins": AnzahlTwins})
