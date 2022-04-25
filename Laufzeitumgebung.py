@@ -25,7 +25,7 @@ _passwd2 = ""
 _host2 = "127.0.0.1"
 _port2 = 1883
 _timeout2 = 60
-_topic_sub2 = "Test"
+_topic_sub2 = "Laufzeitumgebung/#"
 
 '''Variablen für Influxdb'''
 url = "http://localhost:8086"
@@ -37,8 +37,9 @@ bucket = "Messwerte"
 ListeDTs = []
 
 
-def Nachricht_auswerten(Topic, Nachricht):
-    '''Wertet die eingehende Nachricht anhand des Topics aus und leitet die DT-Erstellung oder Messwertzuordnung ein'''
+def Nachricht_auswerten_Broker_1(Topic, Nachricht):
+    '''Wertet die eingehende Nachricht auf dem Broker 1 anhand des Topics aus
+    und leitet die DT-Erstellung oder Messwertzuordnung ein'''
 
     ListeThreads = []
     for thread in threading.enumerate():
@@ -49,14 +50,25 @@ def Nachricht_auswerten(Topic, Nachricht):
                 if Nachricht["Name"] not in str(ListeThreads):
                     DT_nach_Typ_erstellen(Nachricht)
 
-    elif "/Anforderung" in Topic and Nachricht["Task"] == "Erstelle DT" and Nachricht["Name"] in str(ListeThreads):
-        print("Ich lege keinen neuen DT an")
+    elif "/Anforderung" in Topic:
+        if Nachricht["Task"] == "Erstelle DT":
+            if Nachricht["Name"] in str(ListeThreads):
+                print("Ich lege keinen neuen DT an")
 
     if "/Messwert" in Topic:
         Name = Nachricht["Name"]
         Empfaenger = getTwin(Name)
         if Empfaenger is not None:
             Empfaenger.Q.put(Nachricht)
+
+def Nachricht_auswerten_Broker_2(Topic, Nachricht):
+    '''Wertet die eingehende Nachricht auf dem Broker 2 anhand des Topics aus
+    und leitet Anfragen auf dem Ontologie-Server ein'''
+    if "/Bedarf" in Topic:
+        print("Ich habe einen Bedarf erkannt und frage den Ontologie-Server wer das machen kann!")
+        print("Das ist der Bedarf: " + str(Nachricht))
+    else:
+        print("Ich habe keinen Bedarf erkannt")
 
 
 
@@ -125,23 +137,45 @@ async def Anzahl_Twins():
 
 '''Server für API instanziieren
 https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread'''
-config = uvicorn.Config(App, host="127.0.0.1", port=8000, log_level="info")
+config = uvicorn.Config(App, host="127.0.0.1", port=8800, log_level="info")
 server = Server(config=config)
 
 with server.run_in_thread():
     # Server is started.
     while True:
-        AnzahlTwins = len(ListeDTs)
-        print(str(len(ListeDTs)) + " DTs laufen")
-        TopicUndNachricht = Broker_1.Q.get()
-        Topic = TopicUndNachricht[0]
+        if Broker_1.Q.empty() == False or Broker_2.Q.empty() == False:
+            '''Laufzeitumgebung wartet bis sich ein Objekt in der Queue des Broker 1 oder 2 befindet'''
+            AnzahlTwins = len(ListeDTs)
+            print(str(len(ListeDTs)) + " DTs laufen")
 
-        '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine json kompatiblen Nachrichten versendet werden'''
-        try:
-            Nachricht = json.loads(TopicUndNachricht[1])
-            Nachricht_auswerten(Topic, Nachricht)
-        except:
-            print("Kein json kompatibler String")
+            if Broker_1.Q.empty() == False:
+                '''Nachrichten von Broker 1 verarbeiten.
+                Funktion blockt nicht und wird nur aufgerufen wenn etwas in der Queue ist'''
+                TopicUndNachricht = Broker_1.Q.get()
+                Topic = TopicUndNachricht[0]
+
+                '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine
+                json kompatiblen Nachrichten versendet werden'''
+                try:
+                    Nachricht = json.loads(TopicUndNachricht[1])
+                    Nachricht_auswerten_Broker_1(Topic, Nachricht)
+                except:
+                    print("Kein json kompatibler String in Broker 1")
+
+
+            if Broker_2.Q.empty() == False:
+                '''Nachrichten von Broker 2 verarbeiten'''
+                TopicUndNachricht = Broker_2.Q.get()
+                Topic = TopicUndNachricht[0]
+
+                '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine
+                json kompatiblen Nachrichten versendet werden'''
+                try:
+                    Nachricht = json.loads(TopicUndNachricht[1])
+                    Nachricht_auswerten_Broker_2(Topic, Nachricht)
+                except:
+                    print(TopicUndNachricht)
+                    print("Kein json kompatibler String in Broker 2")
 
     # Server stopped.
 
