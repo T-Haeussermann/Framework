@@ -15,17 +15,13 @@ _timeout = 60
 Fähigkeit nur für ADTs ausfüllen und Bedarf nur für PDDTs ausfüllen."""
 Maschinenname = "Tester_PDDT"
 MaschinenTyp = "PDDT"
-KritWert = 60
-Operator = ">"
-Handlung = "Gewicht erhoehen"
-Bedarf = "Ich will"
+Bedarf = json.dumps({"Art": "Loch", "Geometrie": {"Dimension X": 20, "Dimension Y": 20, "Tiefe": 20, "Material": "ST 37"}})
 
 
 """Alle benötigten Topics werden hier definiert"""
 topic = "Laufzeitumgebung/" + Maschinenname + "/#"
 topicAnforderung = "Laufzeitumgebung/" + Maschinenname + "/Anforderung"
-topicMesswerte = "Laufzeitumgebung/" + Maschinenname + "/Messwert"
-topicHandlung = "Laufzeitumgebung/" + Maschinenname + "/Handlung"
+topicBedarf = "Laufzeitumgebung/" + Maschinenname + "/Bedarf"
 
 def on_connect(client, userdata, flags, rc):
     """Verbindung mit dem MQTT-Broker 1 aufbauen"""
@@ -52,15 +48,9 @@ client.connect(_host, _port, _timeout)
 
 
 
-Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT", "Kritischer Wert": KritWert,
-                    "Operator": Operator, "Handlung": Handlung, "Bedarf": Bedarf})
-i = 0
+Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT", "Bedarf": Bedarf})
+
 while True:
-    if i < 2:
-        client.publish(topicAnforderung, Payload)
-        i = i + 1
-    #Messwert = json.dumps({"Name": Maschinenname, "Messwert": 333, "Einheit": "Kilogramm"})
-    Messwert = json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Kilogramm"})
-    client.publish(topicMesswerte, Messwert)
+    client.publish(topicAnforderung, Payload)
     time.sleep(2)
 

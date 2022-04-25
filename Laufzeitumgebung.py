@@ -66,7 +66,7 @@ def DT_nach_Typ_erstellen(Nachricht):
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
         Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, DB_Client,
                                        Nachricht["Kritischer Wert"], Nachricht["Operator"], Nachricht["Handlung"],
-                                       Nachricht["Fähigkeit"])
+                                       json.loads(Nachricht["Fähigkeit"]))
         ListeDTs.append(Neuer_ADT)
         print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
@@ -75,9 +75,8 @@ def DT_nach_Typ_erstellen(Nachricht):
 
     elif Nachricht["Typ"] == "PDDT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_PDDT = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, DB_Client,
-                                                 Nachricht["Kritischer Wert"], Nachricht["Operator"],
-                                                 Nachricht["Handlung"], Nachricht["Bedarf"])
+        Neuer_PDDT = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2,
+                                                 json.loads(Nachricht["Bedarf"]))
         ListeDTs.append(Neuer_PDDT)
         print(Neuer_PDDT.Name + " vom Typ " + Neuer_PDDT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_PDDT.Name, target=Neuer_PDDT.PDDT_Ablauf)
@@ -86,8 +85,7 @@ def DT_nach_Typ_erstellen(Nachricht):
 
     elif Nachricht["Typ"] == "DT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_DT = Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, DB_Client,
-                                Nachricht["Kritischer Wert"], Nachricht["Operator"], Nachricht["Handlung"])
+        Neuer_DT = Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2)
         ListeDTs.append(Neuer_DT)
         print(Neuer_DT.Name + " vom Typ " + Neuer_DT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_DT.Name, target=Neuer_DT.DT_Ablauf)
@@ -105,11 +103,6 @@ def getTwin(Name):
 
 ''' Hauptprogramm, übernimmt die Zuteilung von Nachrichten und Auswertung des Nachrichtentyps'''
 print("ich bin die Laufzeitumgebung")
-
-'''Queues für MQTT-Broker Verbindungen erzeugen '''
-Q_Broker_1 = Queue()
-Q_Broker_2 = Queue()
-
 
 '''MQTT Broker instanziieren und Threads starten'''
 Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1)

@@ -36,10 +36,8 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     """Hier werden Nachrichten zum Topic Handlungen empfangen, diese weisen den PT an was er auszukühlen hat
     z. B. Kühlmittelzuführ aktivieren"""
-    #print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
-    msg = json.loads(str(msg.payload.decode("utf-8")))
-    if msg["Ausführen"] == Handlung:
-        print("Ich aktiviere das Kühlmittel")
+    print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
+
 
 
 client = mqtt.Client()
@@ -58,7 +56,7 @@ while True:
         client.publish(topicAnforderung, Payload)
         i = i + 1
     #Messwert = json.dumps({"Name": Maschinenname, "Messwert": 17, "Einheit": "Celsius"})
-    Messwert = json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Celsius"})
+    Messwert = json.dumps({"Name": Maschinenname, "Nachricht": "Ich bin halt auch dabei"})
     client.publish(topicMesswerte, Messwert)
     time.sleep(2)
 
