@@ -1,8 +1,9 @@
+import threading
 import paho.mqtt.client as mqtt
 from queue import Queue
 
 class MQTT:
-    def __init__(self, _username, _passwd, _host, _port, _topic_sub):
+    def __init__(self, _username, _passwd, _host, _port, _topic_sub, Event):
         self._username = _username
         self._passwd = _passwd
         self._host = _host
@@ -10,6 +11,7 @@ class MQTT:
         self._topic_Sub = _topic_sub
         self.Q = Queue()
         self._timeout = 60
+        self.Event = Event
         self.client = mqtt.Client()
 
     def on_connect(self, client, userdata, flags, rc):
@@ -27,6 +29,7 @@ class MQTT:
         TopicUndNachricht.append(Topic)
         TopicUndNachricht.append(Nachricht)
         self.Q.put(TopicUndNachricht)
+        self.Event.set()
 
     def run(self):
         self.client.username_pw_set(self._username, self._passwd)

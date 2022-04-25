@@ -27,6 +27,10 @@ _port2 = 1883
 _timeout2 = 60
 _topic_sub2 = "Laufzeitumgebung/#"
 
+'''Variablen für beide Broker'''
+Event = threading.Event()
+print(type(Event))
+
 '''Variablen für Influxdb'''
 url = "http://localhost:8086"
 token = "-DnCnjPN_w0JbBzX6cPLMqdoSyJsne31lj4985R88bRj1pCp_Bi_434T5dwHgq1klKGLumx2joHU65P3l1M0cQ=="
@@ -117,8 +121,8 @@ def getTwin(Name):
 print("ich bin die Laufzeitumgebung")
 
 '''MQTT Broker instanziieren und Threads starten'''
-Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1)
-Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2)
+Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1, Event)
+Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2, Event)
 Broker_1.run()
 Broker_2.run()
 
@@ -143,39 +147,41 @@ server = Server(config=config)
 with server.run_in_thread():
     # Server is started.
     while True:
-        if Broker_1.Q.empty() == False or Broker_2.Q.empty() == False:
-            '''Laufzeitumgebung wartet bis sich ein Objekt in der Queue des Broker 1 oder 2 befindet'''
-            AnzahlTwins = len(ListeDTs)
-            print(str(len(ListeDTs)) + " DTs laufen")
+        Event.wait()
+        Event.clear()
+        '''Laufzeitumgebung wartet bis sich ein Objekt in der Queue des Broker 1 oder 2 befindet'''
+        AnzahlTwins = len(ListeDTs)
+        print(str(len(ListeDTs)) + " DTs laufen")
 
-            if Broker_1.Q.empty() == False:
-                '''Nachrichten von Broker 1 verarbeiten.
-                Funktion blockt nicht und wird nur aufgerufen wenn etwas in der Queue ist'''
-                TopicUndNachricht = Broker_1.Q.get()
-                Topic = TopicUndNachricht[0]
+        if Broker_1.Q.empty() == False:
+            '''Nachrichten von Broker 1 verarbeiten.
+            Funktion blockt nicht und wird nur aufgerufen wenn etwas in der Queue ist'''
+            TopicUndNachricht = Broker_1.Q.get()
+            Topic = TopicUndNachricht[0]
 
-                '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine
-                json kompatiblen Nachrichten versendet werden'''
-                try:
-                    Nachricht = json.loads(TopicUndNachricht[1])
-                    Nachricht_auswerten_Broker_1(Topic, Nachricht)
-                except:
-                    print("Kein json kompatibler String in Broker 1")
+            '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine
+            json kompatiblen Nachrichten versendet werden'''
+            try:
+                Nachricht = json.loads(TopicUndNachricht[1])
+                Nachricht_auswerten_Broker_1(Topic, Nachricht)
+            except:
+                print("Kein json kompatibler String in Broker 1")
+
+        if Broker_2.Q.empty() == False:
+            '''Nachrichten von Broker 2 verarbeiten'''
+            TopicUndNachricht = Broker_2.Q.get()
+            Topic = TopicUndNachricht[0]
+
+            '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine
+            json kompatiblen Nachrichten versendet werden'''
+            try:
+                Nachricht = json.loads(TopicUndNachricht[1])
+                Nachricht_auswerten_Broker_2(Topic, Nachricht)
+            except:
+                print(TopicUndNachricht)
+                print("Kein json kompatibler String in Broker 2")
 
 
-            if Broker_2.Q.empty() == False:
-                '''Nachrichten von Broker 2 verarbeiten'''
-                TopicUndNachricht = Broker_2.Q.get()
-                Topic = TopicUndNachricht[0]
-
-                '''Wird benötigt um die Funktionsfähigkeit der Laufumgebung sicherzustellen, falls keine
-                json kompatiblen Nachrichten versendet werden'''
-                try:
-                    Nachricht = json.loads(TopicUndNachricht[1])
-                    Nachricht_auswerten_Broker_2(Topic, Nachricht)
-                except:
-                    print(TopicUndNachricht)
-                    print("Kein json kompatibler String in Broker 2")
 
     # Server stopped.
 
