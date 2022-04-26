@@ -29,7 +29,6 @@ _topic_sub2 = "Laufzeitumgebung/#"
 
 '''Variablen für beide Broker'''
 Event = threading.Event()
-print(type(Event))
 
 '''Variablen für Influxdb'''
 url = "http://localhost:8086"
@@ -69,11 +68,21 @@ def Nachricht_auswerten_Broker_2(Topic, Nachricht):
     '''Wertet die eingehende Nachricht auf dem Broker 2 anhand des Topics aus
     und leitet Anfragen auf dem Ontologie-Server ein'''
     if "/Bedarf" in Topic:
-        print("Ich habe einen Bedarf erkannt und frage den Ontologie-Server wer das machen kann!")
-        print("Das ist der Bedarf: " + str(Nachricht))
-    else:
-        print("Ich habe keinen Bedarf erkannt")
+        if "/Bedarf/Bedienen" not in Topic:
+            Abfrage_Ontologie_Server(Topic, Nachricht)
 
+    if "/Bedarf/Bedienen" in Topic:
+        print("Test")
+        print(Nachricht["Name"] + " kann das machen!")
+
+
+def Abfrage_Ontologie_Server(Topic, Nachricht):
+    '''Führt eine Abfrage auf dem Ontologie-Server durch und gibt die DTs zurück, weleche diese bearbeiten können.'''
+    print("Ich habe einen Bedarf erkannt und frage den Ontologie-Server wer das machen kann!")
+    print("Das ist der Bedarf: " + Nachricht["Art"])
+    Test = json.dumps({"Name": "Hallo"})
+    Topic = Topic + "/Bedienen"
+    Broker_2.publish(Topic, Test)
 
 
 def DT_nach_Typ_erstellen(Nachricht):
@@ -118,7 +127,7 @@ def getTwin(Name):
 
 
 ''' Hauptprogramm, übernimmt die Zuteilung von Nachrichten und Auswertung des Nachrichtentyps'''
-print("ich bin die Laufzeitumgebung")
+print("Hallo ich bin die Laufzeitumgebung :)")
 
 '''MQTT Broker instanziieren und Threads starten'''
 Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1, Event)
@@ -141,15 +150,19 @@ async def Anzahl_Twins():
 
 '''Server für API instanziieren
 https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread'''
-config = uvicorn.Config(App, host="127.0.0.1", port=8800, log_level="info")
+config = uvicorn.Config(App, host="127.0.0.1", port=8000, log_level="info")
 server = Server(config=config)
 
 with server.run_in_thread():
     # Server is started.
+    '''Anzahl Twins muss einmal vor der Schleife definiert werden um jeder Zeit über die API zugreifen zu können.'''
+    AnzahlTwins = len(ListeDTs)
     while True:
         Event.wait()
         Event.clear()
-        '''Laufzeitumgebung wartet bis sich ein Objekt in der Queue des Broker 1 oder 2 befindet'''
+        '''Laufzeitumgebung wartet bis sich ein Objekt in der Queue des Broker 1 oder 2 befindet.
+        Dann wird das Event wieder auf False gestellt und die Laufzeitumgebung wartet
+        nach dem Durchlaufen der Schleife wieder.'''
         AnzahlTwins = len(ListeDTs)
         print(str(len(ListeDTs)) + " DTs laufen")
 
@@ -178,7 +191,7 @@ with server.run_in_thread():
                 Nachricht = json.loads(TopicUndNachricht[1])
                 Nachricht_auswerten_Broker_2(Topic, Nachricht)
             except:
-                print(TopicUndNachricht)
+                print(TopicUndNachricht[1])
                 print("Kein json kompatibler String in Broker 2")
 
 

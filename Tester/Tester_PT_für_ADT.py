@@ -18,7 +18,9 @@ MaschinenTyp = "ADT"
 KritWert = 30
 Operator = ">"
 Handlung = "Kraft erhoehen"
-Fähigkeit = json.dumps({"Art": "Bohren", "Geometrie": {"Dimension X": [5, 20], "Dimension Y": [5, 20], "Tiefe": 20, "Material": "ST 37"}})
+Fähigkeit = json.dumps({"Art": "Bohren", "Geometrie": "Kreis",
+                        "Dimensionen": {"Dimension X": [5, 20], "Dimension Y": [5, 20], "Dimension Z": 20,
+                                        "Material": "ST 37"}})
 
 """Alle benötigten Topics werden hier definiert"""
 topic = "Laufzeitumgebung/" + Maschinenname + "/#"
