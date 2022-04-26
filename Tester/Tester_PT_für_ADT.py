@@ -63,6 +63,9 @@ while True:
         i = i + 1
     #Messwert = json.dumps({"Name": Maschinenname, "Messwert": 69, "Einheit": "Newton"})
     Messwert = json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Newton"})
+    #Messwert = json.dumps({"Name": Maschinenname, "Sensoren": {"S1": {"Messwert": randrange(100), "Einheit": "Newton"},
+                          "S2": {"Messwert": randrange(100), "Einheit": "Celsius"},
+                          "S3": {"Messwert": randrange(100), "Einheit": "Kilogramm"}}})
     client.publish(topicMesswerte, Messwert)
     time.sleep(2)
 
