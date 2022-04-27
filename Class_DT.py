@@ -31,17 +31,26 @@ class Asset_Digital_Twin(Digital_Twin):
         self.Fähigkeit = Fähigkeit
         self.Topic = "Laufzeitumgebung/" + self.Name + "/Handlung"
 
+    def Ich_bin(self):
+        Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Fähigkeit": self.Fähigkeit, "Sensoren":
+            {self.DB_Client.Query(self.Name, "all")}})
+        Ich_bin = json.loads(Ich_bin)
+        return Ich_bin
+
     def ADT_Ablauf(self):
+        self.DB_Client.New_Bucket(self.Name)
         while True:
             Nachricht = self.Q.get()
-            test = list(Nachricht["Messwert"].keys())[0] #Sensorname
-            print(type(Nachricht["Messwert"][test])) # Sensorwert integer
+            Sensorname = list(Nachricht["Messwert"].keys())[0]
+            Sensoreinheit = Nachricht["Messwert"]["Einheit"]
+            Sensorwert = Nachricht["Messwert"][Sensorname]
+            Messpunkt = Point("Messwerte").tag("Sensor", Sensorname).field(Sensoreinheit, Sensorwert)
+            self.DB_Client.Schreiben(self.Name, Messpunkt)
             # Messwert = Nachricht["Messwert"]
             # Messwert_str = str(Nachricht["Messwert"])
             # Einheit = Nachricht["Einheit"]
             # print(Messwert_str + " " + Einheit + " von einem " + self.Typ + " gemessen")
             # Punkt = Point("Messwert").tag("Name", self.Name).field("Gewicht",Messwert)
-            # self.DB_Client.Schreiben(Punkt)
             # if self.Operator == ">":
             #     if Messwert > self.KritWert:
             #         Payload = json.dumps({"Name": self.Name, "Ausführen": self.Handlung})

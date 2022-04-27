@@ -137,20 +137,39 @@ Broker_2.run()
 
 '''Lock für DB erzeugen und Verbindung zur Datenbank instanziieren'''
 Lock_DB_Client = threading.Lock()
-DB_Client = Influxdb(url, token, org, bucket, Lock_DB_Client)
+DB_Client = Influxdb(url, token, org, Lock_DB_Client)
 
 
 '''App für Get-Request instanziieren'''
 App = FastAPI()
 
-'''API für den Zugriff auf die Laufzeitumgebung. Zugreifen über http://127.0.0.1:8000/docs#/'''
+'''API für den Zugriff auf die Laufzeitumgebung. Zugreifen über http://127.0.0.1:7000/docs#/'''
+'''Gibt Anzahl der aktiven DTs zurück'''
 @App.get("/get-twin-names-api/")
 async def Anzahl_Twins():
-   return json.dumps({"Anzahl Twins": AnzahlTwins})
+    return json.loads(json.dumps({"Anzahl Twins": AnzahlTwins}))
+
+'''Gibt den letzten Messwert des angegebenen DTs und Sensors zurück. Wir der Name des Sensors auf all gestellt,
+werden die letzten Werte aller Sensoren des DTs als Liste zurückgegeben'''
+@App.get("/get/{Name}/{Sensor}")
+async def Anzahl_Twins(Name, Sensor):
+    return DB_Client.Query(Name, Sensor)
+
+'''Gibt den angegebenen DTs zurück.'''
+@App.get("/get/{Name}")
+async def Anzahl_Twins(Name):
+    Twin = getTwin(Name)
+    '''Error Handling, fall der gesuchte Twin noch nicht instanziiert wurde.'''
+    return Twin
+    try:
+        Twin = Twin.Ich_bin()
+        return Twin
+    except:
+        return "Gesuchter Twin nicht vorhanden"
 
 '''Server für API instanziieren
 https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread'''
-config = uvicorn.Config(App, host="127.0.0.1", port=8000, log_level="info")
+config = uvicorn.Config(App, host="127.0.0.1", port=7000, log_level="info")
 server = Server(config=config)
 
 with server.run_in_thread():
