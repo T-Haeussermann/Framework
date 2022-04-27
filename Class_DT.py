@@ -44,9 +44,7 @@ class Asset_Digital_Twin(Digital_Twin):
                 "Wert": self.DB_Client.Query(self.Name, Sensor)["Messwert"],
                 "Einheit": self.DB_Client.Query(self.Name, Sensor)["Einheit"]
             }
-
             Sensorwerte[Sensor] = WertUndEinheit
-
         Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Fähigkeit": self.Fähigkeit, "Sensoren": Sensorwerte})
         Ich_bin = json.loads(Ich_bin)
         return Ich_bin

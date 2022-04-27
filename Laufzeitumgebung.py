@@ -156,18 +156,18 @@ async def Sensorwerte_Twin(Name, Sensor):
     return DB_Client.Query(Name, Sensor)
 
 '''Gibt den angegebenen DTs zurück.'''
-@App.get("/{Name}/{WAS}")
-async def Twins(Name, WAS):
+@App.get("/{Name}/{Attribut}")
+async def Twins(Name, Attribut):
     Twin = getTwin(Name)
     '''Error Handling, fall der gesuchte Twin noch nicht instanziiert wurde.'''
     if Twin == None:
         return "Gesuchter Twin nicht vorhanden"
     else:
-        if WAS == "all":
+        if Attribut == "all":
             Twin = Twin.Ich_bin()
             return Twin
         else:
-            Twin = Twin.Ich_bin()[WAS]
+            Twin = Twin.Ich_bin()[Attribut]
             return Twin
 
 '''Server für API instanziieren
