@@ -25,7 +25,7 @@ Fähigkeit = json.dumps({"Art": "Bohren", "Geometrie": "Kreis",
 """Alle benötigten Topics werden hier definiert"""
 topic = "Laufzeitumgebung/" + Maschinenname + "/#"
 topicAnforderung = "Laufzeitumgebung/" + Maschinenname + "/Anforderung"
-topicMesswerte = "Laufzeitumgebung/" + Maschinenname + "/Messwert"
+topicMesswerte = "Laufzeitumgebung/" + Maschinenname + "/Messwerte"
 topicHandlung = "Laufzeitumgebung/" + Maschinenname + "/Handlung"
 
 def on_connect(client, userdata, flags, rc):
@@ -61,11 +61,14 @@ while True:
     if i < 2:
         client.publish(topicAnforderung, Payload)
         i = i + 1
-    #Messwert = json.dumps({"Name": Maschinenname, "Messwert": 69, "Einheit": "Newton"})
-    Messwert = json.dumps({"Name": Maschinenname, "Messwert": randrange(100), "Einheit": "Newton"})
+    Messwert = json.dumps({"Name": Maschinenname, "Messwert": {"S1": randrange(100), "Einheit": "Newton"}})
+    client.publish(topicMesswerte + "/S1", Messwert)
+    Messwert = json.dumps({"Name": Maschinenname, "Messwert": {"S2": randrange(100), "Einheit": "Celsius"}})
+    client.publish(topicMesswerte + "/S2", Messwert)
+    Messwert = json.dumps({"Name": Maschinenname, "Messwert": {"S3": randrange(100), "Einheit": "Kilogramm"}})
     #Messwert = json.dumps({"Name": Maschinenname, "Sensoren": {"S1": {"Messwert": randrange(100), "Einheit": "Newton"},
-                          "S2": {"Messwert": randrange(100), "Einheit": "Celsius"},
-                          "S3": {"Messwert": randrange(100), "Einheit": "Kilogramm"}}})
-    client.publish(topicMesswerte, Messwert)
+                          # "S2": {"Messwert": randrange(100), "Einheit": "Celsius"},
+                          # "S3": {"Messwert": randrange(100), "Einheit": "Kilogramm"}}})
+    client.publish(topicMesswerte + "/S3", Messwert)
     time.sleep(2)
 

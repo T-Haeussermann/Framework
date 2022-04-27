@@ -58,7 +58,7 @@ def Nachricht_auswerten_Broker_1(Topic, Nachricht):
             if Nachricht["Name"] in str(ListeThreads):
                 print("Ich lege keinen neuen DT an")
 
-    if "/Messwert" in Topic:
+    if "/Messwerte" in Topic:
         Name = Nachricht["Name"]
         Empfaenger = getTwin(Name)
         if Empfaenger is not None:

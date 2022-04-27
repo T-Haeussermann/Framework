@@ -34,20 +34,22 @@ class Asset_Digital_Twin(Digital_Twin):
     def ADT_Ablauf(self):
         while True:
             Nachricht = self.Q.get()
-            Messwert = Nachricht["Messwert"]
-            Messwert_str = str(Nachricht["Messwert"])
-            Einheit = Nachricht["Einheit"]
-            print(Messwert_str + " " + Einheit + " von einem " + self.Typ + " gemessen")
-            Punkt = Point("Messwert").tag("Name", self.Name).field("Gewicht",Messwert)
-            self.DB_Client.Schreiben(Punkt)
-            if self.Operator == ">":
-                if Messwert > self.KritWert:
-                    Payload = json.dumps({"Name": self.Name, "Ausführen": self.Handlung})
-                    self.Broker_1.publish(self.Topic, Payload)
-            elif self.Operator == "<":
-                if Messwert < self.KritWert:
-                    Payload = json.dumps({"Name": self.Name, "Ausführen": self.Handlung})
-                    self.Broker_1.publish(self.Topic, Payload)
+            test = list(Nachricht["Messwert"].keys())[0] #Sensorname
+            print(type(Nachricht["Messwert"][test])) # Sensorwert integer
+            # Messwert = Nachricht["Messwert"]
+            # Messwert_str = str(Nachricht["Messwert"])
+            # Einheit = Nachricht["Einheit"]
+            # print(Messwert_str + " " + Einheit + " von einem " + self.Typ + " gemessen")
+            # Punkt = Point("Messwert").tag("Name", self.Name).field("Gewicht",Messwert)
+            # self.DB_Client.Schreiben(Punkt)
+            # if self.Operator == ">":
+            #     if Messwert > self.KritWert:
+            #         Payload = json.dumps({"Name": self.Name, "Ausführen": self.Handlung})
+            #         self.Broker_1.publish(self.Topic, Payload)
+            # elif self.Operator == "<":
+            #     if Messwert < self.KritWert:
+            #         Payload = json.dumps({"Name": self.Name, "Ausführen": self.Handlung})
+            #         self.Broker_1.publish(self.Topic, Payload)
 
 
 class Product_Demand_Digital_Twin(Digital_Twin):
