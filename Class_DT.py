@@ -14,6 +14,11 @@ class Digital_Twin:
         self.Broker_2 = Broker_2
         self.Topic = "Laufzeitumgebung/" + self.Name
 
+    def Ich_bin(self):
+        Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ})
+        Ich_bin = json.loads(Ich_bin)
+        return Ich_bin
+
     def DT_Ablauf(self):
         while True:
             Nachricht = self.Q.get()
@@ -22,8 +27,9 @@ class Digital_Twin:
 
 
 class Asset_Digital_Twin(Digital_Twin):
-    def __init__(self, Name, Typ, Broker_1, Broker_2, DB_Client, KritWert, Operator, Handlung, Fähigkeit):
+    def __init__(self, Name, Typ, Sensoren, Broker_1, Broker_2, DB_Client, KritWert, Operator, Handlung, Fähigkeit):
         super().__init__(Name, Typ, Broker_1, Broker_2)
+        self.Sensoren = Sensoren
         self.DB_Client = DB_Client
         self.KritWert = KritWert
         self.Operator = Operator
@@ -32,7 +38,15 @@ class Asset_Digital_Twin(Digital_Twin):
         self.Topic = "Laufzeitumgebung/" + self.Name + "/Handlung"
 
     def Ich_bin(self):
-        Sensorwerte = self.DB_Client.Query(self.Name, "all")
+        Sensorwerte = {}
+        for Sensor in self.Sensoren:
+            WertUndEinheit = {
+                "Wert": self.DB_Client.Query(self.Name, Sensor)["Messwert"],
+                "Einheit": self.DB_Client.Query(self.Name, Sensor)["Einheit"]
+            }
+
+            Sensorwerte[Sensor] = WertUndEinheit
+
         Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Fähigkeit": self.Fähigkeit, "Sensoren": Sensorwerte})
         Ich_bin = json.loads(Ich_bin)
         return Ich_bin
@@ -66,6 +80,11 @@ class Product_Demand_Digital_Twin(Digital_Twin):
         super().__init__(Name, Typ, Broker_1, Broker_2)
         self.Bedarf = Bedarf
         self.Topic = "Laufzeitumgebung/" + self.Name + "/Bedarf"
+
+    def Ich_bin(self):
+        Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Bedarf": self.Bedarf})
+        Ich_bin = json.loads(Ich_bin)
+        return Ich_bin
 
     def PDDT_Ablauf(self):
         self.Broker_2.publish(self.Topic, json.dumps(self.Bedarf))

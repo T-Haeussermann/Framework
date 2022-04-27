@@ -15,6 +15,7 @@ _timeout = 60
 Fähigkeit nur für ADTs ausfüllen und Bedarf nur für PDDTs ausfüllen."""
 Maschinenname = "Tester_ADT"
 MaschinenTyp = "ADT"
+Sensoren = ["S1", "S2", "S3"]
 KritWert = 30
 Operator = ">"
 Handlung = "Kraft erhoehen"
@@ -54,8 +55,8 @@ client.connect(_host, _port, _timeout)
 
 
 
-Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT", "Kritischer Wert": KritWert,
-                    "Operator": Operator, "Handlung": Handlung, "Fähigkeit": Fähigkeit})
+Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Sensoren": Sensoren, "Task": "Erstelle DT",
+                    "Kritischer Wert": KritWert, "Operator": Operator, "Handlung": Handlung, "Fähigkeit": Fähigkeit})
 i = 0
 while True:
     if i < 2:
@@ -66,9 +67,6 @@ while True:
     Messwert = json.dumps({"Name": Maschinenname, "Messwert": {"S2": randrange(100), "Einheit": "Celsius"}})
     client.publish(topicMesswerte + "/S2", Messwert)
     Messwert = json.dumps({"Name": Maschinenname, "Messwert": {"S3": randrange(100), "Einheit": "Kilogramm"}})
-    #Messwert = json.dumps({"Name": Maschinenname, "Sensoren": {"S1": {"Messwert": randrange(100), "Einheit": "Newton"},
-                          # "S2": {"Messwert": randrange(100), "Einheit": "Celsius"},
-                          # "S3": {"Messwert": randrange(100), "Einheit": "Kilogramm"}}})
     client.publish(topicMesswerte + "/S3", Messwert)
     time.sleep(2)
 

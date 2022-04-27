@@ -89,9 +89,9 @@ def DT_nach_Typ_erstellen(Nachricht):
     '''Prüft die eingehende Nachricht auf den Typ des DTs und instanziiert davon abhänig einen ADT, PDDT oder DT aus der Klasse DT'''
     if Nachricht["Typ"] == "ADT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
-        Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2, DB_Client,
-                                       Nachricht["Kritischer Wert"], Nachricht["Operator"], Nachricht["Handlung"],
-                                       json.loads(Nachricht["Fähigkeit"]))
+        Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Sensoren"],
+                                       Broker_1, Broker_2, DB_Client, Nachricht["Kritischer Wert"],
+                                       Nachricht["Operator"], Nachricht["Handlung"], json.loads(Nachricht["Fähigkeit"]))
         ListeDTs.append(Neuer_ADT)
         print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
@@ -145,11 +145,11 @@ App = FastAPI()
 
 '''API für den Zugriff auf die Laufzeitumgebung. Zugreifen über http://127.0.0.1:7000/docs#/'''
 '''Gibt Anzahl der aktiven DTs zurück'''
-@App.get("/get-twin-names-api/")
+@App.get("/get-twin-number/")
 async def Anzahl_Twins():
     return json.loads(json.dumps({"Anzahl Twins": AnzahlTwins}))
 
-'''Gibt den letzten Messwert des angegebenen DTs und Sensors zurück. Wir der Name des Sensors auf all gestellt,
+'''Gibt den letzten Messwert des angegebenen DTs und Sensors zurück. Wird der Name des Sensors auf all gestellt,
 werden die letzten Werte aller Sensoren des DTs als Liste zurückgegeben'''
 @App.get("/get/{Name}/{Sensor}")
 async def Sensorwerte_Twin(Name, Sensor):
