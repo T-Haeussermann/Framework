@@ -32,8 +32,8 @@ class Asset_Digital_Twin(Digital_Twin):
         self.Topic = "Laufzeitumgebung/" + self.Name + "/Handlung"
 
     def Ich_bin(self):
-        Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Fähigkeit": self.Fähigkeit, "Sensoren":
-            {self.DB_Client.Query(self.Name, "all")}})
+        Sensorwerte = self.DB_Client.Query(self.Name, "all")
+        Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Fähigkeit": self.Fähigkeit, "Sensoren": Sensorwerte})
         Ich_bin = json.loads(Ich_bin)
         return Ich_bin
 

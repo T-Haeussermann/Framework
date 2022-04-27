@@ -152,20 +152,23 @@ async def Anzahl_Twins():
 '''Gibt den letzten Messwert des angegebenen DTs und Sensors zurück. Wir der Name des Sensors auf all gestellt,
 werden die letzten Werte aller Sensoren des DTs als Liste zurückgegeben'''
 @App.get("/get/{Name}/{Sensor}")
-async def Anzahl_Twins(Name, Sensor):
+async def Sensorwerte_Twin(Name, Sensor):
     return DB_Client.Query(Name, Sensor)
 
 '''Gibt den angegebenen DTs zurück.'''
-@App.get("/get/{Name}")
-async def Anzahl_Twins(Name):
+@App.get("/{Name}/{WAS}")
+async def Twins(Name, WAS):
     Twin = getTwin(Name)
     '''Error Handling, fall der gesuchte Twin noch nicht instanziiert wurde.'''
-    return Twin
-    try:
-        Twin = Twin.Ich_bin()
-        return Twin
-    except:
+    if Twin == None:
         return "Gesuchter Twin nicht vorhanden"
+    else:
+        if WAS == "all":
+            Twin = Twin.Ich_bin()
+            return Twin
+        else:
+            Twin = Twin.Ich_bin()[WAS]
+            return Twin
 
 '''Server für API instanziieren
 https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread'''
