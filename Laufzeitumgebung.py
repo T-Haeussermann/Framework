@@ -75,7 +75,8 @@ def Nachricht_auswerten_Broker_2(Topic, Nachricht):
 def Abfrage_Ontologie_Server(Topic, Nachricht):
     '''Führt eine Abfrage auf dem Ontologie-Server durch und gibt die DTs zurück, weleche diese bearbeiten können.'''
     print("Ich habe einen Bedarf erkannt und frage den Ontologie-Server wer das machen kann!")
-    Bediener = json.dumps({"Anfrage": {"DTs": "Hallo"}})
+    Bediener = json.dumps({"DTs": "Tester_ADT"})
+    Bediener = json.loads(Bediener)
     Anfrager = getTwin(Nachricht["Name"])
     if Anfrager is not None:
         Anfrager.Q.put(Bediener)

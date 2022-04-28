@@ -93,7 +93,7 @@ class Product_Demand_Digital_Twin(Digital_Twin):
     def __init__(self, Name, Typ, Broker_1, Broker_2, Bedarf):
         super().__init__(Name, Typ, Broker_1, Broker_2)
         self.Bedarf = Bedarf
-        self.Topic = "Laufzeitumgebung/" + self.Name + "/Bedarf"
+        self.Topic = "Laufzeitumgebung/" + self.Name
 
     def Ich_bin(self):
         Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Bedarf": self.Bedarf})
@@ -101,7 +101,11 @@ class Product_Demand_Digital_Twin(Digital_Twin):
         return Ich_bin
 
     def PDDT_Ablauf(self):
-        self.Broker_2.publish(self.Topic, json.dumps({"Name": self.Name, "Bedarf": self.Bedarf}))
+        self.Broker_2.publish(self.Topic + "/Bedarf", json.dumps({"Name": self.Name, "Bedarf": self.Bedarf}))
         while True:
             Nachricht = self.Q.get()
-            print(Nachricht)
+            # Ermittel wer der Beste ist
+            Name = Nachricht["DTs"]
+            self.Broker_2.publish(self.Topic + "/Herstellen", json.dumps({"Name": self.Name,
+                                                                           "Hersteller": Name,
+                                                                           "Bedarf": self.Bedarf}))
