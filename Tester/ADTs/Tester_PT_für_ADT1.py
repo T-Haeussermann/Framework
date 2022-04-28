@@ -19,9 +19,10 @@ Sensoren = ["S1", "S2", "S3", "S4"]
 KritWerte = {"S1": 40, "S2": 90, "S3": 10, "S4": 50}
 Operatoren = {"S1": ">", "S2": "<", "S3": "<", "S4": ">"}
 Handlungen = {"S1": "Kraft erhoehen", "S2": "Kühlmittel aktivieren", "S3": "Gewicht erhöhen", "S4": "Backrate steigern"}
-Fähigkeit = json.dumps({"Art": "Fräsen", "Geometrie": "beliebig",
+Skill = json.dumps({"Art": "Fräsen", "Geometrie": "beliebig",
                         "Dimensionen": {"Dimension X": [0, 100], "Dimension Y": [0, 100], "Dimension Z": 50,
                                         "Material": "beliebig"}})
+Skill = json.loads(Skill)
 
 """Alle benötigten Topics werden hier definiert"""
 topic = "Laufzeitumgebung/" + Maschinenname + "/#"
@@ -57,8 +58,8 @@ client.connect(_host, _port, _timeout)
 
 
 Payload=json.dumps({"Name": Maschinenname, "Task": "Erstelle DT", "Typ": MaschinenTyp, "Sensoren": Sensoren,
-                    "Kritische Werte": KritWerte, "Operatoren": Operatoren, "Handlungen": Handlungen, "Fähigkeit":
-                        json.loads(Fähigkeit})
+                    "Kritische Werte": KritWerte, "Operatoren": Operatoren, "Handlungen": Handlungen,
+                    "Skill": Skill})
 i = 0
 while True:
     if i < 2:

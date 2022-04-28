@@ -68,18 +68,17 @@ def Nachricht_auswerten_Broker_2(Topic, Nachricht):
     '''Wertet die eingehende Nachricht auf dem Broker 2 anhand des Topics aus
     und leitet Anfragen auf dem Ontologie-Server ein'''
     if "/Bedarf" in Topic:
-        if "/Bedarf/Bedienen" not in Topic:
-            Abfrage_Ontologie_Server(Topic, Nachricht)
+        Abfrage_Ontologie_Server(Topic, Nachricht)
 
 
 
 def Abfrage_Ontologie_Server(Topic, Nachricht):
     '''Führt eine Abfrage auf dem Ontologie-Server durch und gibt die DTs zurück, weleche diese bearbeiten können.'''
     print("Ich habe einen Bedarf erkannt und frage den Ontologie-Server wer das machen kann!")
-    print("Das ist der Bedarf: " + Nachricht["Art"])
-    Test = json.dumps({"Name": "Hallo"})
-    Topic = Topic + "/Bedienen"
-    Broker_2.publish(Topic, Test)
+    Bediener = json.dumps({"Anfrage": {"DTs": "Hallo"}})
+    Anfrager = getTwin(Nachricht["Name"])
+    if Anfrager is not None:
+        Anfrager.Q.put(Bediener)
 
 
 def DT_nach_Typ_erstellen(Nachricht):
@@ -88,7 +87,7 @@ def DT_nach_Typ_erstellen(Nachricht):
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
         Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Sensoren"],
                                        Broker_1, Broker_2, DB_Client, Nachricht["Kritische Werte"],
-                                       Nachricht["Operatoren"], Nachricht["Handlungen"], json.loads(Nachricht["Fähigkeit"]))
+                                       Nachricht["Operatoren"], Nachricht["Handlungen"], Nachricht["Skill"])
         ListeDTs.append(Neuer_ADT)
         print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
@@ -98,7 +97,7 @@ def DT_nach_Typ_erstellen(Nachricht):
     elif Nachricht["Typ"] == "PDDT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
         Neuer_PDDT = Product_Demand_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Broker_1, Broker_2,
-                                                 json.loads(Nachricht["Bedarf"]))
+                                                 Nachricht["Bedarf"])
         ListeDTs.append(Neuer_PDDT)
         print(Neuer_PDDT.Name + " vom Typ " + Neuer_PDDT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_PDDT.Name, target=Neuer_PDDT.PDDT_Ablauf)

@@ -101,7 +101,7 @@ class Product_Demand_Digital_Twin(Digital_Twin):
         return Ich_bin
 
     def PDDT_Ablauf(self):
-        self.Broker_2.publish(self.Topic, json.dumps(self.Bedarf))
+        self.Broker_2.publish(self.Topic, json.dumps({"Name": self.Name, "Bedarf": self.Bedarf}))
         while True:
             Nachricht = self.Q.get()
             print(Nachricht)

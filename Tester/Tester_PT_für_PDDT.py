@@ -17,6 +17,7 @@ Maschinenname = "Tester_PDDT"
 MaschinenTyp = "PDDT"
 Bedarf = json.dumps({"Art": "Loch", "Geometrie": "Kreis",
                      "Dimensionen": {"Dimension X": 20, "Dimension Y": 20, "Dimension Z": 20, "Material": "ST 37"}})
+Bedarf = json.loads(Bedarf)
 
 
 """Alle benötigten Topics werden hier definiert"""
@@ -49,7 +50,7 @@ client.connect(_host, _port, _timeout)
 
 
 
-Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT", "Bedarf": json.loads(Bedarf)})
+Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT", "Bedarf": Bedarf})
 while True:
     client.publish(topicAnforderung, Payload)
     time.sleep(2)
