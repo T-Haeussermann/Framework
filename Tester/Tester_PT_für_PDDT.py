@@ -49,7 +49,7 @@ client.connect(_host, _port, _timeout)
 
 
 
-Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT", "Bedarf": Bedarf})
+Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT", "Bedarf": json.loads(Bedarf)})
 while True:
     client.publish(topicAnforderung, Payload)
     time.sleep(2)

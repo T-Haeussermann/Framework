@@ -57,7 +57,8 @@ client.connect(_host, _port, _timeout)
 
 
 Payload=json.dumps({"Name": Maschinenname, "Task": "Erstelle DT", "Typ": MaschinenTyp, "Sensoren": Sensoren,
-                    "Kritische Werte": KritWerte, "Operatoren": Operatoren, "Handlungen": Handlungen, "Fähigkeit": Fähigkeit})
+                    "Kritische Werte": KritWerte, "Operatoren": Operatoren, "Handlungen": Handlungen, "Fähigkeit":
+                        json.loads(Fähigkeit)})
 i = 0
 while True:
     if i < 2:

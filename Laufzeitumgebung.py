@@ -71,9 +71,6 @@ def Nachricht_auswerten_Broker_2(Topic, Nachricht):
         if "/Bedarf/Bedienen" not in Topic:
             Abfrage_Ontologie_Server(Topic, Nachricht)
 
-    if "/Bedarf/Bedienen" in Topic:
-        print("Test")
-        print(Nachricht["Name"] + " kann das machen!")
 
 
 def Abfrage_Ontologie_Server(Topic, Nachricht):
