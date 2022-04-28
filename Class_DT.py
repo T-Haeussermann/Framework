@@ -40,6 +40,7 @@ class Asset_Digital_Twin(Digital_Twin):
     def Ich_bin(self):
         Sensorwerte = {}
         for Sensor in self.Sensoren:
+
             WertUndEinheit = {
                 "Wert": self.DB_Client.Query(self.Name, Sensor)["Messwert"],
                 "Einheit": self.DB_Client.Query(self.Name, Sensor)["Einheit"],
@@ -70,16 +71,21 @@ class Asset_Digital_Twin(Digital_Twin):
             self.DB_Client.Schreiben(self.Name, Messpunkt)
 
             '''Status prüfen und ggf. Handlung publishen'''
-            Status = self.Ich_bin()
-            for Sensor in Status["Sensoren"]:
-                if Status["Sensoren"][Sensor]["Operator"] == ">":
-                    if Status["Sensoren"][Sensor]["Wert"] > Status["Sensoren"][Sensor]["Kritischer Wert"]:
-                        Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
-                        self.Broker_1.publish(self.Topic + "/" + Sensor, Payload)
-                if Status["Sensoren"][Sensor]["Operator"] == "<":
-                    if Status["Sensoren"][Sensor]["Wert"] < Status["Sensoren"][Sensor]["Kritischer Wert"]:
-                        Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
-                        self.Broker_1.publish(self.Topic + "/" + Sensor, Payload)
+            try:
+                Status = self.Ich_bin()
+                for Sensor in Status["Sensoren"]:
+                    if Status["Sensoren"][Sensor]["Operator"] == ">":
+                        if Status["Sensoren"][Sensor]["Wert"] > Status["Sensoren"][Sensor]["Kritischer Wert"]:
+                            Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
+                            self.Broker_1.publish(self.Topic + "/" + Sensor, Payload)
+                    if Status["Sensoren"][Sensor]["Operator"] == "<":
+                        if Status["Sensoren"][Sensor]["Wert"] < Status["Sensoren"][Sensor]["Kritischer Wert"]:
+                            Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
+                            self.Broker_1.publish(self.Topic + "/" + Sensor, Payload)
+            except:
+                pass
+
+
 
 
 
