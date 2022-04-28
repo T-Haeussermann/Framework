@@ -27,12 +27,12 @@ Fähigkeit = json.dumps({"Art": "Bohren", "Geometrie": "Kreis",
 topic = "Laufzeitumgebung/" + Maschinenname + "/#"
 topicAnforderung = "Laufzeitumgebung/" + Maschinenname + "/Anforderung"
 topicMesswerte = "Laufzeitumgebung/" + Maschinenname + "/Messwerte"
-topicHandlung = "Laufzeitumgebung/" + Maschinenname + "/Handlung"
+topicHandlung = "Laufzeitumgebung/" + Maschinenname + "/Handlungen"
 
 def on_connect(client, userdata, flags, rc):
     """Verbindung mit dem MQTT-Broker 1 aufbauen"""
     print("Connected with result code " + str(rc))
-    client.subscribe("Laufzeitumgebung/" + Maschinenname + "/Handlung")
+    client.subscribe("Laufzeitumgebung/" + Maschinenname + "/Handlungen/#")
 
 
 
@@ -41,8 +41,9 @@ def on_message(client, userdata, msg):
     z. B. Kühlmittelzuführ aktivieren"""
     #print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
     msg = json.loads(str(msg.payload.decode("utf-8")))
-    if msg["Ausführen"] == Handlung:
-        print("Ich erhöhe die Kraft")
+    for Sensor in Handlungen:
+        if msg["Ausführen"] == Handlungen[Sensor]:
+            print("Handlung : " + Handlungen[Sensor] + " eingeleitet")
 
 
 client = mqtt.Client()
