@@ -90,8 +90,8 @@ def DT_nach_Typ_erstellen(Nachricht):
     if Nachricht["Typ"] == "ADT":
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
         Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Sensoren"],
-                                       Broker_1, Broker_2, DB_Client, Nachricht["Kritischer Wert"],
-                                       Nachricht["Operator"], Nachricht["Handlung"], json.loads(Nachricht["Fähigkeit"]))
+                                       Broker_1, Broker_2, DB_Client, Nachricht["Kritische Werte"],
+                                       Nachricht["Operatoren"], Nachricht["Handlungen"], json.loads(Nachricht["Fähigkeit"]))
         ListeDTs.append(Neuer_ADT)
         print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
@@ -156,7 +156,8 @@ async def Sensorwerte_Twin(Name, Sensor):
     return DB_Client.Query(Name, Sensor)
 
 
-'''Gibt den angegebenen DTs oder die ausgewählten Inhalte zurück.'''
+'''Gibt den angegebenen DTs oder die ausgewählten Inhalte zurück. Attribute sind optional Query-Parameter.
+In Url: http://127.0.0.1:7000/{Name}?Attribut1=Attribut&Attribut2=Attribut...'''
 @App.get("/{Name}")
 async def Twins(Name, Attribut1=None, Attribut2 =None, Attribut3=None, Attribut4=None, Attribut5= None):
     Twin = getTwin(Name)
@@ -221,6 +222,7 @@ with server.run_in_thread():
                 Nachricht = json.loads(TopicUndNachricht[1])
                 Nachricht_auswerten_Broker_1(Topic, Nachricht)
             except:
+                print(TopicUndNachricht[1])
                 print("Kein json kompatibler String in Broker 1")
 
         if Broker_2.Q.empty() == False:

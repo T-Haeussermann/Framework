@@ -27,24 +27,32 @@ class Digital_Twin:
 
 
 class Asset_Digital_Twin(Digital_Twin):
-    def __init__(self, Name, Typ, Sensoren, Broker_1, Broker_2, DB_Client, KritWert, Operator, Handlung, Fähigkeit):
+    def __init__(self, Name, Typ, Sensoren, Broker_1, Broker_2, DB_Client, KritWerte, Operatoren, Handlungen, Fähigkeit):
         super().__init__(Name, Typ, Broker_1, Broker_2)
         self.Sensoren = Sensoren
         self.DB_Client = DB_Client
-        self.KritWert = KritWert
-        self.Operator = Operator
-        self.Handlung = Handlung
+        self.KritWerte = KritWerte
+        self.Operatoren = Operatoren
+        self.Handlungen = Handlungen
         self.Fähigkeit = Fähigkeit
-        self.Topic = "Laufzeitumgebung/" + self.Name + "/Handlung"
+        self.Topic = "Laufzeitumgebung/" + self.Name + "/Handlungen"
 
     def Ich_bin(self):
         Sensorwerte = {}
         for Sensor in self.Sensoren:
             WertUndEinheit = {
                 "Wert": self.DB_Client.Query(self.Name, Sensor)["Messwert"],
-                "Einheit": self.DB_Client.Query(self.Name, Sensor)["Einheit"]
+                "Einheit": self.DB_Client.Query(self.Name, Sensor)["Einheit"],
+                "Kritischer Wert": self.KritWerte[Sensor],
+                "Operator": self.Operatoren[Sensor],
+                "Handlung": self.Handlungen[Sensor]
             }
             Sensorwerte[Sensor] = WertUndEinheit
+        '''Sensorwerte, Kritische Werte, Operatoren und Handlungen getrennt'''
+        # Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Fähigkeit": self.Fähigkeit, "Sensoren": Sensorwerte,
+        #                       "Kritische Werte": self.KritWerte, "Operatoren": self.Operatoren,
+        #                       "Handlungen": self.Handlungen})
+        '''Sensorwerte, Kritische Werte, Operatoren und Handlungen zusammen'''
         Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Fähigkeit": self.Fähigkeit, "Sensoren": Sensorwerte})
         Ich_bin = json.loads(Ich_bin)
         return Ich_bin
@@ -52,25 +60,27 @@ class Asset_Digital_Twin(Digital_Twin):
     def ADT_Ablauf(self):
         self.DB_Client.New_Bucket(self.Name)
         while True:
+            '''Warten bis sich eine Nachricht mit Messwerten in der Queue befindet.
+            Datenpunkt erstellen und in der Datenbank ablegen'''
             Nachricht = self.Q.get()
             Sensorname = list(Nachricht["Messwert"].keys())[0]
             Sensoreinheit = Nachricht["Messwert"]["Einheit"]
             Sensorwert = Nachricht["Messwert"][Sensorname]
             Messpunkt = Point("Messwerte").tag("Sensor", Sensorname).field(Sensoreinheit, Sensorwert)
             self.DB_Client.Schreiben(self.Name, Messpunkt)
-            # Messwert = Nachricht["Messwert"]
-            # Messwert_str = str(Nachricht["Messwert"])
-            # Einheit = Nachricht["Einheit"]
-            # print(Messwert_str + " " + Einheit + " von einem " + self.Typ + " gemessen")
-            # Punkt = Point("Messwert").tag("Name", self.Name).field("Gewicht",Messwert)
-            # if self.Operator == ">":
-            #     if Messwert > self.KritWert:
-            #         Payload = json.dumps({"Name": self.Name, "Ausführen": self.Handlung})
-            #         self.Broker_1.publish(self.Topic, Payload)
-            # elif self.Operator == "<":
-            #     if Messwert < self.KritWert:
-            #         Payload = json.dumps({"Name": self.Name, "Ausführen": self.Handlung})
-            #         self.Broker_1.publish(self.Topic, Payload)
+
+            '''Status prüfen und ggf. Handlung publishen'''
+            Status = self.Ich_bin()
+            for Sensor in Status["Sensoren"]:
+                if Status["Sensoren"][Sensor]["Operator"] == ">":
+                    if Status["Sensoren"][Sensor]["Wert"] > Status["Sensoren"][Sensor]["Kritischer Wert"]:
+                        Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
+                        self.Broker_1.publish(self.Topic + "/" + Sensor, Payload)
+                if Status["Sensoren"][Sensor]["Operator"] == "<":
+                    if Status["Sensoren"][Sensor]["Wert"] < Status["Sensoren"][Sensor]["Kritischer Wert"]:
+                        Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
+                        self.Broker_1.publish(self.Topic + "/" + Sensor, Payload)
+
 
 
 class Product_Demand_Digital_Twin(Digital_Twin):
