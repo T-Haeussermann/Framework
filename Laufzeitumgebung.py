@@ -155,20 +155,41 @@ werden die letzten Werte aller Sensoren des DTs als Liste zurückgegeben'''
 async def Sensorwerte_Twin(Name, Sensor):
     return DB_Client.Query(Name, Sensor)
 
-'''Gibt den angegebenen DTs zurück.'''
-@App.get("/{Name}/{Attribut}")
-async def Twins(Name, Attribut):
+
+'''Gibt den angegebenen DTs oder die ausgewählten Inhalte zurück.'''
+@App.get("/{Name}")
+async def Twins(Name, Attribut1=None, Attribut2 =None, Attribut3=None, Attribut4=None, Attribut5= None):
     Twin = getTwin(Name)
     '''Error Handling, fall der gesuchte Twin noch nicht instanziiert wurde.'''
     if Twin == None:
         return "Gesuchter Twin nicht vorhanden"
     else:
-        if Attribut == "all":
+        if Attribut1 == None:
             Twin = Twin.Ich_bin()
             return Twin
         else:
-            Twin = Twin.Ich_bin()[Attribut]
-            return Twin
+            if Attribut1 == None:
+                Twin = Twin.Ich_bin()
+                return Twin
+            elif Attribut1 != None:
+                if Attribut2 == None:
+                    Twin = Twin.Ich_bin()[Attribut1]
+                    return Twin
+                elif Attribut2 != None:
+                    if Attribut3 == None:
+                        Twin = Twin.Ich_bin()[Attribut1][Attribut2]
+                        return Twin
+                    elif Attribut3 != None:
+                        if Attribut4 == None:
+                            Twin = Twin.Ich_bin()[Attribut1][Attribut2][Attribut3]
+                            return Twin
+                        elif Attribut4 != None:
+                            if Attribut5 == None:
+                                Twin = Twin.Ich_bin()[Attribut1][Attribut2][Attribut3][Attribut4]
+                                return Twin
+                            elif Attribut5 != None:
+                                Twin = Twin.Ich_bin()[Attribut1][Attribut2][Attribut3][Attribut4][Attribut5]
+                                return Twin
 
 '''Server für API instanziieren
 https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread'''
