@@ -35,10 +35,10 @@ def on_connect(client, userdata, flags, rc):
 def on_message(client, userdata, msg):
     """Hier werden Nachrichten zum Topic Handlungen empfangen, diese weisen den PT an was er auszukühlen hat
     z. B. Kühlmittelzuführ aktivieren"""
-    #print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
-    msg = json.loads(str(msg.payload.decode("utf-8")))
-    if msg["Ausführen"] == Handlung:
-        print("Ich nehme zu")
+    print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
+    # msg = json.loads(str(msg.payload.decode("utf-8")))
+    # if msg["Ausführen"] == Handlung:
+    #     print("Ich nehme zu")
 
 
 client = mqtt.Client()

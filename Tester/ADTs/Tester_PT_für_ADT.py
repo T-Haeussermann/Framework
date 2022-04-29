@@ -33,18 +33,23 @@ topicHandlung = "Laufzeitumgebung/" + Maschinenname + "/Handlungen"
 def on_connect(client, userdata, flags, rc):
     """Verbindung mit dem MQTT-Broker 1 aufbauen"""
     print("Connected with result code " + str(rc))
-    client.subscribe("Laufzeitumgebung/" + Maschinenname + "/Handlungen/#")
+    client.subscribe("Laufzeitumgebung/" + Maschinenname + "/#")
 
 
 
 def on_message(client, userdata, msg):
-    """Hier werden Nachrichten zum Topic Handlungen empfangen, diese weisen den PT an was er auszukühlen hat
+    """Hier werden Nachrichten zum Topic Handlungen empfangen, diese weisen den PT an was er auszuführen hat
     z. B. Kühlmittelzuführ aktivieren"""
-    #print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
-    msg = json.loads(str(msg.payload.decode("utf-8")))
-    for Sensor in Handlungen:
-        if msg["Ausführen"] == Handlungen[Sensor]:
-            print("Handlung : " + Handlungen[Sensor] + " eingeleitet")
+    # print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
+    Nachricht = json.loads(str(msg.payload.decode("utf-8")))
+    Topic = msg.topic
+    if "Handlungen" in Topic:
+        for Sensor in Handlungen:
+            if Nachricht["Ausführen"] == Handlungen[Sensor]:
+                print("Handlung : " + Handlungen[Sensor] + " eingeleitet")
+
+    if "Fertigung" in Topic:
+        print("Ich stelle jetzt " + str(Nachricht["Bedarf"]) + " für " + str(Nachricht["Auftraggeber"]) + " her!")
 
 
 client = mqtt.Client()

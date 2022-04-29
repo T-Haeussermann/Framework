@@ -90,10 +90,9 @@ class Asset_Digital_Twin(Digital_Twin):
                     pass
 
             elif "Hersteller" in Nachricht:
-                print("Ich stelle jetzt " + str(Nachricht["Bedarf"]) + " für " + str(Nachricht["Auftraggeber"]) + " her!")
                 Payload = json.dumps({"Auftraggeber": Nachricht["Auftraggeber"], "Bedarf": Nachricht["Bedarf"],
                                       "Auftragseingang": time.asctime()})
-                self.Broker_1.publish(self.Topic + "/Fertigung/" + Nachricht["Auftraggeber"], Payload)
+                self.Broker_1.publish(self.Topic + "/Fertigung/" + Nachricht["Auftraggeber"], Payload, 2)
 
 
 

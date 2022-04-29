@@ -20,8 +20,9 @@ class MQTT:
         print("Connected with result code " + str(rc))
         self.client.subscribe(self._topic_Sub)
 
-    def publish(self, Topic, Payload):
-        self.client.publish(Topic, Payload)
+    def publish(self, Topic, Payload, Qos=0):
+        self.client.publish(Topic, Payload, Qos)
+        print(Payload)
         print("Nachricht gepublisht")
 
     def on_message(self, client, userdata, msg):
