@@ -17,7 +17,7 @@ class Influxdb:
         self.lock = lock
         self.dbclient = InfluxDBClient(url=url, token=token, org=org)
         self.buckets_api = self.dbclient.buckets_api()
-        self.retention_rules = BucketRetentionRules(type="expire", every_seconds=86400)
+        # self.retention_rules = BucketRetentionRules(type="expire", every_seconds=86400) #Bei Bedarf ausfüllen
         self.write_api = self.dbclient.write_api(write_options=SYNCHRONOUS)
 
 
@@ -28,7 +28,7 @@ class Influxdb:
 
     def New_Bucket(self, Name):
         if self.buckets_api.find_bucket_by_name(bucket_name=Name) == None:
-            self.buckets_api.create_bucket(bucket_name=Name, retention_rules=self.retention_rules, org=self.org)
+            self.buckets_api.create_bucket(bucket_name=Name, retention_rules=None, org=self.org)
         else:
             pass
 
