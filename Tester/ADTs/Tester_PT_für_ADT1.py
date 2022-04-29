@@ -19,9 +19,8 @@ Sensoren = ["S1", "S2", "S3", "S4"]
 KritWerte = {"S1": 40, "S2": 90, "S3": 10, "S4": 50}
 Operatoren = {"S1": ">", "S2": "<", "S3": "<", "S4": ">"}
 Handlungen = {"S1": "Kraft erhoehen", "S2": "Kühlmittel aktivieren", "S3": "Gewicht erhöhen", "S4": "Backrate steigern"}
-Skill = json.dumps({"Art": "Fräsen", "Geometrie": "beliebig",
-                        "Dimensionen": {"Dimension X": [0, 100], "Dimension Y": [0, 100], "Dimension Z": 50,
-                                        "Material": "beliebig"}})
+Skill = json.dumps({"Art": "Bohren", "Material": "ST 37", "Geometrie": "Kreis",
+                        "Dimensionen": {"Dimension X": [5, 20], "Dimension Y": [5, 20], "Dimension Z": 20}})
 Skill = json.loads(Skill)
 
 """Alle benötigten Topics werden hier definiert"""
