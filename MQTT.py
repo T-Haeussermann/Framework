@@ -1,4 +1,6 @@
 import threading
+import time
+
 import paho.mqtt.client as mqtt
 from queue import Queue
 
@@ -39,7 +41,6 @@ class MQTT:
         self.client.connect(self._host, self._port, self._timeout)
         #self.client.loop_forever()
         #self.client.loop_stop()
-
 
 
 

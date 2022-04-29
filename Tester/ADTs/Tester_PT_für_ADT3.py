@@ -60,11 +60,9 @@ client.connect(_host, _port, _timeout)
 Payload=json.dumps({"Name": Maschinenname, "Task": "Erstelle DT", "Typ": MaschinenTyp, "Sensoren": Sensoren,
                     "Kritische Werte": KritWerte, "Operatoren": Operatoren, "Handlungen": Handlungen,
                     "Skill": Skill})
-i = 0
+client.publish(topicAnforderung, Payload, 2)
+
 while True:
-    if i < 2:
-        client.publish(topicAnforderung, Payload)
-        i = i + 1
     Messwert = json.dumps({"Name": Maschinenname, "Messwert": {"S1": randrange(100), "Einheit": "Newton"}})
     client.publish(topicMesswerte + "/S1", Messwert)
     Messwert = json.dumps({"Name": Maschinenname, "Messwert": {"S2": randrange(100), "Einheit": "Celsius"}})

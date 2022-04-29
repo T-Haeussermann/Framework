@@ -1,5 +1,4 @@
 import json
-
 from influxdb_client import InfluxDBClient, BucketRetentionRules
 from influxdb_client.client.write_api import SYNCHRONOUS
 
@@ -18,7 +17,7 @@ class Influxdb:
         self.lock = lock
         self.dbclient = InfluxDBClient(url=url, token=token, org=org)
         self.buckets_api = self.dbclient.buckets_api()
-        self.retention_rules = BucketRetentionRules(type="expire", every_seconds=3600)
+        self.retention_rules = BucketRetentionRules(type="expire", every_seconds=86400)
         self.write_api = self.dbclient.write_api(write_options=SYNCHRONOUS)
 
 

@@ -51,7 +51,8 @@ client.connect(_host, _port, _timeout)
 
 
 Payload=json.dumps({"Name": Maschinenname, "Typ": MaschinenTyp, "Task": "Erstelle DT", "Bedarf": Bedarf})
+client.publish(topicAnforderung, Payload, 2)
 while True:
-    client.publish(topicAnforderung, Payload)
+
     time.sleep(2)
 

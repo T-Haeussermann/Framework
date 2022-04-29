@@ -70,6 +70,12 @@ def Nachricht_auswerten_Broker_2(Topic, Nachricht):
     if "/Bedarf" in Topic:
         Abfrage_Ontologie_Server(Topic, Nachricht)
 
+    if "/Herstellen" in Topic:
+        Name = Nachricht["Hersteller"]
+        Empfaenger = getTwin(Name)
+        if Empfaenger is not None:
+            Empfaenger.Q.put(Nachricht)
+
 
 
 def Abfrage_Ontologie_Server(Topic, Nachricht):

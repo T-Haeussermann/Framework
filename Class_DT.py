@@ -1,3 +1,4 @@
+import time
 from queue import Queue
 import json
 from influxdb_client import Point
@@ -35,7 +36,7 @@ class Asset_Digital_Twin(Digital_Twin):
         self.Operatoren = Operatoren
         self.Handlungen = Handlungen
         self.Fähigkeit = Fähigkeit
-        self.Topic = "Laufzeitumgebung/" + self.Name + "/Handlungen"
+        self.Topic = "Laufzeitumgebung/" + self.Name
 
     def Ich_bin(self):
         Sensorwerte = {}
@@ -61,29 +62,39 @@ class Asset_Digital_Twin(Digital_Twin):
     def ADT_Ablauf(self):
         self.DB_Client.New_Bucket(self.Name)
         while True:
-            '''Warten bis sich eine Nachricht mit Messwerten in der Queue befindet.
+            '''Warten bis sich eine Nachricht in der Queue befindet.
+            Prüfen ob es sich um Messwerte oder Fertigungsauftrag handelt
             Datenpunkt erstellen und in der Datenbank ablegen'''
             Nachricht = self.Q.get()
-            Sensorname = list(Nachricht["Messwert"].keys())[0]
-            Sensoreinheit = Nachricht["Messwert"]["Einheit"]
-            Sensorwert = Nachricht["Messwert"][Sensorname]
-            Messpunkt = Point("Messwerte").tag("Sensor", Sensorname).field(Sensoreinheit, Sensorwert)
-            self.DB_Client.Schreiben(self.Name, Messpunkt)
+            if "Messwert" in Nachricht:
+                Sensorname = list(Nachricht["Messwert"].keys())[0]
+                Sensoreinheit = Nachricht["Messwert"]["Einheit"]
+                Sensorwert = Nachricht["Messwert"][Sensorname]
+                Messpunkt = Point("Messwerte").tag("Sensor", Sensorname).field(Sensoreinheit, Sensorwert)
+                self.DB_Client.Schreiben(self.Name, Messpunkt)
 
-            '''Status prüfen und ggf. Handlung publishen'''
-            try:
-                Status = self.Ich_bin()
-                for Sensor in Status["Sensoren"]:
-                    if Status["Sensoren"][Sensor]["Operator"] == ">":
-                        if Status["Sensoren"][Sensor]["Wert"] > Status["Sensoren"][Sensor]["Kritischer Wert"]:
-                            Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
-                            self.Broker_1.publish(self.Topic + "/" + Sensor, Payload)
-                    if Status["Sensoren"][Sensor]["Operator"] == "<":
-                        if Status["Sensoren"][Sensor]["Wert"] < Status["Sensoren"][Sensor]["Kritischer Wert"]:
-                            Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
-                            self.Broker_1.publish(self.Topic + "/" + Sensor, Payload)
-            except:
-                pass
+                '''Status prüfen und ggf. Handlung publishen. Error Handling, da zu Beginn noch nicht für alle Sensoren
+                Messwerte in der Datenbank vorliegen.'''
+                try:
+                    Status = self.Ich_bin()
+                    for Sensor in Status["Sensoren"]:
+                        if Status["Sensoren"][Sensor]["Operator"] == ">":
+                            if Status["Sensoren"][Sensor]["Wert"] > Status["Sensoren"][Sensor]["Kritischer Wert"]:
+                                Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
+                                self.Broker_1.publish(self.Topic + "/Handlungen/" + Sensor, Payload)
+                        if Status["Sensoren"][Sensor]["Operator"] == "<":
+                            if Status["Sensoren"][Sensor]["Wert"] < Status["Sensoren"][Sensor]["Kritischer Wert"]:
+                                Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
+                                self.Broker_1.publish(self.Topic + "/Handlungen/" + Sensor, Payload)
+                except:
+                    pass
+
+            elif "Hersteller" in Nachricht:
+                print("Ich stelle jetzt " + str(Nachricht["Bedarf"]) + " für " + str(Nachricht["Auftraggeber"]) + " her!")
+                Payload = json.dumps({"Auftraggeber": Nachricht["Auftraggeber"], "Bedarf": Nachricht["Bedarf"],
+                                      "Auftragseingang": time.asctime()})
+                self.Broker_1.publish(self.Topic + "/Fertigung/" + Nachricht["Auftraggeber"], Payload)
+
 
 
 
@@ -104,8 +115,8 @@ class Product_Demand_Digital_Twin(Digital_Twin):
         self.Broker_2.publish(self.Topic + "/Bedarf", json.dumps({"Name": self.Name, "Bedarf": self.Bedarf}))
         while True:
             Nachricht = self.Q.get()
-            # Ermittel wer der Beste ist
+            # Ermittelt, wer der Beste ist
             Name = Nachricht["DTs"]
-            self.Broker_2.publish(self.Topic + "/Herstellen", json.dumps({"Name": self.Name,
+            self.Broker_2.publish(self.Topic + "/Herstellen", json.dumps({"Auftraggeber": self.Name,
                                                                            "Hersteller": Name,
                                                                            "Bedarf": self.Bedarf}))
