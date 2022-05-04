@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 from random import randrange
 import time
+import datetime
 
 
 _username = "dbt"
@@ -22,6 +23,21 @@ Handlungen = {"S1": "Kraft erhoehen", "S2": "Kühlmittel aktivieren", "S3": "Gew
 Skill = json.dumps({"Art": "Bohren", "Material": "ST 37", "Geometrie": "Kreis",
                         "Dimensionen": {"Dimension X": [5, 20], "Dimension Y": [5, 20], "Dimension Z": 20}})
 Skill = json.loads(Skill)
+
+
+'''Entscheidungsvariablen für die Vergabe von Aufträgen'''
+Preise = json.dumps({"Kreis D5": 5, "Kreis D6": 6, "Kreis D7": 7, "Kreis D8": 8, "Kreis D9": 9, "Kreis D10": 10,
+                    "Kreis D11": 11, "Kreis D12": 12, "Kreis D13": 13, "Kreis D14": 14, "Kreis D15": 15,
+                    "Kreis D16": 16, "Kreis D17": 17, "Kreis D18": 18, "Kreis D19": 19, "Kreis D20": 20})
+Preise = json.loads(Preise)
+
+Zeiten = json.dumps({"Kreis D5": 50, "Kreis D6": 60, "Kreis D7": 70, "Kreis D8": 80, "Kreis D9": 90, "Kreis D10": 100,
+                    "Kreis D11": 110, "Kreis D12": 120, "Kreis D13": 130, "Kreis D14": 140, "Kreis D15": 150,
+                   "Kreis D16": 160, "Kreis D17": 170, "Kreis D18": 180, "Kreis D19": 190, "Kreis D20": 200})
+Zeiten = json.loads(Zeiten)
+
+Fehlerquote = 0.1
+
 
 """Alle benötigten Topics werden hier definiert"""
 topic = "Laufzeitumgebung/" + Maschinenname + "/#"
@@ -63,7 +79,7 @@ client.connect(_host, _port, _timeout)
 
 Payload=json.dumps({"Name": Maschinenname, "Task": "Erstelle DT", "Typ": MaschinenTyp, "Sensoren": Sensoren,
                     "Kritische Werte": KritWerte, "Operatoren": Operatoren, "Handlungen": Handlungen,
-                    "Skill": Skill})
+                    "Skill": Skill, "Preise": Preise, "Zeiten": Zeiten, "Fehlerquote": Fehlerquote})
 client.publish(topicAnforderung, Payload, 2)
 
 while True:

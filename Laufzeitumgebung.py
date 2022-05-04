@@ -94,7 +94,8 @@ def DT_nach_Typ_erstellen(Nachricht):
         print("Ich stelle DT mit dem Namen " + Nachricht["Name"] + " bereit!")
         Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Sensoren"],
                                        Broker_1, Broker_2, DB_Client, Nachricht["Kritische Werte"],
-                                       Nachricht["Operatoren"], Nachricht["Handlungen"], Nachricht["Skill"])
+                                       Nachricht["Operatoren"], Nachricht["Handlungen"], Nachricht["Skill"],
+                                       Nachricht["Preise"], Nachricht["Zeiten"], Nachricht["Fehlerquote"])
         ListeDTs.append(Neuer_ADT)
         print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)

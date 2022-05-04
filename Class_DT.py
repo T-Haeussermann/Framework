@@ -28,7 +28,8 @@ class Digital_Twin:
 
 
 class Asset_Digital_Twin(Digital_Twin):
-    def __init__(self, Name, Typ, Sensoren, Broker_1, Broker_2, DB_Client, KritWerte, Operatoren, Handlungen, Fähigkeit):
+    def __init__(self, Name, Typ, Sensoren, Broker_1, Broker_2, DB_Client, KritWerte, Operatoren, Handlungen, Fähigkeit,
+                 Preise, Zeiten, Fehlerquote):
         super().__init__(Name, Typ, Broker_1, Broker_2)
         self.Sensoren = Sensoren
         self.DB_Client = DB_Client
@@ -36,6 +37,9 @@ class Asset_Digital_Twin(Digital_Twin):
         self.Operatoren = Operatoren
         self.Handlungen = Handlungen
         self.Fähigkeit = Fähigkeit
+        self.Preise = Preise
+        self.Zeiten = Zeiten
+        self.Fehlerquote = Fehlerquote
         self.Topic = "Laufzeitumgebung/" + self.Name
 
     def Ich_bin(self):
@@ -55,7 +59,8 @@ class Asset_Digital_Twin(Digital_Twin):
         #                       "Kritische Werte": self.KritWerte, "Operatoren": self.Operatoren,
         #                       "Handlungen": self.Handlungen})
         '''Sensorwerte, Kritische Werte, Operatoren und Handlungen zusammen'''
-        Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Fähigkeit": self.Fähigkeit, "Sensoren": Sensorwerte})
+        Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Fähigkeit": self.Fähigkeit, "Sensoren": Sensorwerte,
+                              "Preise": self.Preise, "Zeiten": self.Zeiten, "Fehlerquote": self.Fehlerquote})
         Ich_bin = json.loads(Ich_bin)
         return Ich_bin
 
