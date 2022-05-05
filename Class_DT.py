@@ -91,7 +91,7 @@ class Asset_Digital_Twin(Digital_Twin):
                             if Status["Sensoren"][Sensor]["Wert"] < Status["Sensoren"][Sensor]["Kritischer Wert"]:
                                 Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
                                 self.Broker_1.publish(self.Topic + "/Handlungen/" + Sensor, Payload)
-                except:/
+                except:
                     pass
 
             elif "Hersteller" in Nachricht:
@@ -120,6 +120,17 @@ class Product_Demand_Digital_Twin(Digital_Twin):
         while True:
             Nachricht = self.Q.get()
             # Ermittelt, wer der Beste ist
+            # H = {}
+            # for DT in ListeHersteller:
+            #     DigitalTwin = getTwin(DT)
+            #     if DigitalTwin is not None:
+            #         H[DT] = [DigitalTwin.Ich_bin()["Preise"]["Kreis D5"], DigitalTwin.Ich_bin()["Zeiten"]["Kreis D5"],
+            #                  DigitalTwin.Ich_bin()["Fehlerquote"]]
+            #         print(H)
+            # Liste = {"Eins": [1, 1, 1], "Zwei": [2, 2, 2], "Drei": [3, 3, 3]}
+            print(Nachricht[0].Ich_bin())
+            print(type(Nachricht[0]))
+            '''muss angepasst werden!!! bis hier läuft es'''
             Name = Nachricht["DTs"]
             self.Broker_2.publish(self.Topic + "/Herstellen", json.dumps({"Auftraggeber": self.Name,
                                                                            "Hersteller": Name,
