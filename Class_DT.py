@@ -91,7 +91,7 @@ class Asset_Digital_Twin(Digital_Twin):
                             if Status["Sensoren"][Sensor]["Wert"] < Status["Sensoren"][Sensor]["Kritischer Wert"]:
                                 Payload = json.dumps({"Name": self.Name, "Ausführen": Status["Sensoren"][Sensor]["Handlung"]})
                                 self.Broker_1.publish(self.Topic + "/Handlungen/" + Sensor, Payload)
-                except:
+                except:/
                     pass
 
             elif "Hersteller" in Nachricht:
