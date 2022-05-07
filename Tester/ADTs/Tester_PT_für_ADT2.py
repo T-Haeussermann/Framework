@@ -2,6 +2,7 @@ import paho.mqtt.client as mqtt
 import json
 from random import randrange
 import time
+import datetime
 
 
 _username = "dbt"
@@ -19,9 +20,23 @@ Sensoren = ["S1", "S2", "S3", "S4"]
 KritWerte = {"S1": 30, "S2": 50, "S3": 25, "S4":17}
 Operatoren = {"S1": ">", "S2": "<", "S3": "<", "S4":">"}
 Handlungen = {"S1": "Kraft erhoehen", "S2": "Kühlmittel aktivieren", "S3": "Gewicht erhöhen", "S4": "Backrate steigern"}
-Skill = json.dumps({"Art": "Bohren", "Material": "ST 37", "Geometrie": "Kreis",
+Skill = json.dumps({"Art": "Fräsen", "Material": "ST 37", "Geometrie": "Rechteck",
                         "Dimensionen": {"Dimension X": [5, 20], "Dimension Y": [5, 20], "Dimension Z": 20}})
 Skill = json.loads(Skill)
+
+
+'''Entscheidungsvariablen für die Vergabe von Aufträgen'''
+Preise = json.dumps({"5x5": 5, "6x6": 6, "7x7": 7, "8x8": 8, "9x9": 9, "10x10": 10, "11x11": 11, "12x12": 12,
+                     "13x13": 13, "14": 14, "15": 15, "16x16": 16, "17x17": 17, "18x18": 18, "19x19": 19, "20x20": 20})
+Preise = json.loads(Preise)
+
+Zeiten = json.dumps({"5x5": 50, "6x6": 60, "7x7": 70, "8x8": 80, "9x9": 90, "10x10": 100, "11x11": 110, "12x12": 120,
+                     "13x13": 130, "14x14": 140, "15x15": 150, "16x16": 160, "17x17": 170, "18x18": 180, "19x19": 190,
+                     "20x20": 200})
+Zeiten = json.loads(Zeiten)
+
+Fehlerquote = 0.1
+
 
 """Alle benötigten Topics werden hier definiert"""
 topic = "Laufzeitumgebung/" + Maschinenname + "/#"
@@ -32,18 +47,23 @@ topicHandlung = "Laufzeitumgebung/" + Maschinenname + "/Handlungen"
 def on_connect(client, userdata, flags, rc):
     """Verbindung mit dem MQTT-Broker 1 aufbauen"""
     print("Connected with result code " + str(rc))
-    client.subscribe("Laufzeitumgebung/" + Maschinenname + "/Handlungen/#")
+    client.subscribe("Laufzeitumgebung/" + Maschinenname + "/#")
 
 
 
 def on_message(client, userdata, msg):
-    """Hier werden Nachrichten zum Topic Handlungen empfangen, diese weisen den PT an was er auszukühlen hat
+    """Hier werden Nachrichten zum Topic Handlungen empfangen, diese weisen den PT an was er auszuführen hat
     z. B. Kühlmittelzuführ aktivieren"""
-    #print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
-    msg = json.loads(str(msg.payload.decode("utf-8")))
-    for Sensor in Handlungen:
-        if msg["Ausführen"] == Handlungen[Sensor]:
-            print("Handlung : " + Handlungen[Sensor] + " eingeleitet")
+    # print(msg.topic + " : " + str(msg.payload.decode("utf-8")))
+    Nachricht = json.loads(str(msg.payload.decode("utf-8")))
+    Topic = msg.topic
+    if "Handlungen" in Topic:
+        for Sensor in Handlungen:
+            if Nachricht["Ausführen"] == Handlungen[Sensor]:
+                print("Handlung : " + Handlungen[Sensor] + " eingeleitet")
+
+    if "Fertigung" in Topic:
+        print("Ich stelle jetzt " + str(Nachricht["Bedarf"]) + " für " + str(Nachricht["Auftraggeber"]) + " her!")
 
 
 client = mqtt.Client()
@@ -58,7 +78,7 @@ client.connect(_host, _port, _timeout)
 
 Payload=json.dumps({"Name": Maschinenname, "Task": "Erstelle DT", "Typ": MaschinenTyp, "Sensoren": Sensoren,
                     "Kritische Werte": KritWerte, "Operatoren": Operatoren, "Handlungen": Handlungen,
-                    "Skill": Skill})
+                    "Skill": Skill, "Preise": Preise, "Zeiten": Zeiten, "Fehlerquote": Fehlerquote})
 client.publish(topicAnforderung, Payload, 2)
 
 while True:

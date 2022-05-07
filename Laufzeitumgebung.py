@@ -82,7 +82,7 @@ def Abfrage_Ontologie_Server(Topic, Nachricht):
     '''Führt eine Abfrage auf dem Ontologie-Server durch und gibt die DTs zurück, weleche diese bearbeiten können.'''
     print("Ich habe einen Bedarf erkannt und frage den Ontologie-Server wer das machen kann!")
     '''Liste der möglichen DTs erstellen mit den Werten, die bewertet werden'''
-    ListeHersteller = ["Tester_ADT", "Test"]
+    ListeHersteller = ["Tester_ADT", "Tester_ADT1", "Tester_ADT2"]
     Hersteller = []
     for Twin in ListeHersteller:
         DT = getTwin(Twin)

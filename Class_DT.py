@@ -124,56 +124,66 @@ class Product_Demand_Digital_Twin(Digital_Twin):
             for DT in Nachricht:
                 Twin = DT.Ich_bin()
                 TwinName = Twin["Name"]
-                if self.Bedarf["Art"] == "Loch":
-                    Liste = []
-                    for ET in Twin["Preise"]:
-                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
-                            Liste.append(Twin["Preise"][ET])
+                '''Error Handling, falls Twin mit falschem Skill übergeben wird'''
+                try:
+                    if self.Bedarf["Art"] == "Loch":
+                        Liste = []
+                        for ET in Twin["Preise"]:
+                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                Liste.append(Twin["Preise"][ET])
 
-                    for ET in Twin["Zeiten"]:
-                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
-                            Liste.append(Twin["Zeiten"][ET])
+                        for ET in Twin["Zeiten"]:
+                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                Liste.append(Twin["Zeiten"][ET])
 
-                    Liste.append(Twin["Fehlerquote"])
-                    Liste_Hersteller[TwinName] = Liste
+                        Liste.append(Twin["Fehlerquote"])
+                        Liste_Hersteller[TwinName] = Liste
 
-                if self.Bedarf["Art"] == "Kreis":
-                    Liste = []
-                    for ET in Twin["Preise"]:
-                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
-                            Liste.append(Twin["Preise"][ET])
+                    if self.Bedarf["Art"] == "Kreis":
+                        Liste = []
+                        for ET in Twin["Preise"]:
+                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                Liste.append(Twin["Preise"][ET])
 
-                    for ET in Twin["Zeiten"]:
-                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
-                            Liste.append(Twin["Zeiten"][ET])
+                        for ET in Twin["Zeiten"]:
+                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                Liste.append(Twin["Zeiten"][ET])
 
-                    Liste.append(Twin["Fehlerquote"])
-                    Liste_Hersteller[TwinName] = Liste
+                        Liste.append(Twin["Fehlerquote"])
+                        Liste_Hersteller[TwinName] = Liste
 
-                if self.Bedarf["Art"] == "Rechteck":
-                    Liste = []
-                    for ET in Twin["Preise"]:
-                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" +\
-                                str(self.Bedarf["Dimensionen"]["Dimension Y"]):
-                            Liste.append(Twin["Preise"][ET])
+                    if self.Bedarf["Art"] == "Rechteck":
+                        Liste = []
+                        print("TESTE")
+                        for ET in Twin["Preise"]:
+                            print(ET)
+                            print(type(ET))
+                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" +\
+                                    str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                                Liste.append(Twin["Preise"][ET])
 
-                    for ET in Twin["Zeiten"]:
-                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" +\
-                                str(self.Bedarf["Dimensionen"]["Dimension Y"]):
-                            Liste.append(Twin["Zeiten"][ET])
+                        for ET in Twin["Zeiten"]:
+                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" +\
+                                    str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                                Liste.append(Twin["Zeiten"][ET])
 
-                    Liste.append(Twin["Fehlerquote"])
-                    Liste_Hersteller[TwinName] = Liste
-
+                        Liste.append(Twin["Fehlerquote"])
+                        Liste_Hersteller[TwinName] = Liste
+                except:
+                    continue
+            print(Liste)
+            print(Liste_Hersteller)
             for DT in Liste_Hersteller:
                 Güte = Liste_Hersteller[DT][0] + Liste_Hersteller[DT][1] + 2 * Liste_Hersteller[DT][2]
                 Liste_Hersteller[DT] = Güte
 
+            '''https://stackoverflow.com/questions/3282823/get-the-key-corresponding-to-the-minimum-value-within-a-dictionary'''
             MinWert = min(Liste_Hersteller.values())
             MinHersteller = [k for k, v in Liste_Hersteller.items() if v == MinWert]
 
             '''Wenn mehrere DTs den gleichen Wert haben, nimm den ersten'''
             Hersteller = MinHersteller[0]
+            print(Hersteller)
             self.Broker_2.publish(self.Topic + "/Herstellen", json.dumps({"Auftraggeber": self.Name,
                                                                            "Hersteller": Hersteller,
                                                                            "Bedarf": self.Bedarf}))
