@@ -88,8 +88,7 @@ def Abfrage_Ontologie_Server(Topic, Nachricht):
         DT = getTwin(Twin)
         if DT is not None:
             Hersteller.append(DT)
-    # Hersteller = json.dumps({"DTs": "Tester_ADT"})
-    # Hersteller = json.loads(Hersteller)
+
     Anfrager = getTwin(Nachricht["Name"])
     if Anfrager is not None:
         Anfrager.Q.put(Hersteller)

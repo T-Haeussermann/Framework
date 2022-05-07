@@ -15,7 +15,7 @@ Fehlerquote = 0.1
 j = json.dumps({"Preise": Preise, "Zeiten": Zeiten, "Fehlerquote": Fehlerquote})
 j = json.loads(j)
 
-Bedarf = json.dumps({"Art": "Loch", "Material": "ST 37", "Geometrie": "Kreis",
+Bedarf = json.dumps({"Art": "Rechteck", "Material": "ST 37", "Geometrie": "Kreis",
                      "Dimensionen": {"Dimension X": 20, "Dimension Y": 20, "Dimension Z": 20}})
 Bedarf = json.loads(Bedarf)
 
@@ -26,18 +26,42 @@ for item in Liste_DTs:
     if Bedarf["Art"] == "Loch":
         Liste = []
         for ET in j["Preise"]:
-            if int(ET) == Bedarf["Dimensionen"]["Dimension X"]:
-                Liste.append(int(ET))
+            if ET == str(Bedarf["Dimensionen"]["Dimension X"]):
+                Liste.append(j["Preise"][ET])
+
         for ET in j["Zeiten"]:
-            if int(ET) == Bedarf["Dimensionen"]["Dimension X"]:
-                Liste.append(int(ET))
+            if ET == str(Bedarf["Dimensionen"]["Dimension X"]):
+                Liste.append(j["Zeiten"][ET])
+
         Liste.append(j["Fehlerquote"])
         Liste_Fertig[item] = Liste
 
+    if Bedarf["Art"] == "Kreis":
+        Liste = []
+        for ET in j["Preise"]:
+            if ET == str(Bedarf["Dimensionen"]["Dimension X"]):
+                Liste.append(j["Preise"][ET])
 
+        for ET in j["Zeiten"]:
+            if ET == str(Bedarf["Dimensionen"]["Dimension X"]):
+                Liste.append(j["Zeiten"][ET])
 
-#Liste_Fertig = {"Eins": [1, 1, 1], "Zwei": [2, 2, 2], "Drei": [3,3,3]}
-print(Liste_Fertig)
+        Liste.append(j["Fehlerquote"])
+        Liste_Fertig[item] = Liste
+
+    if Bedarf["Art"] == "Rechteck":
+        Liste = []
+        for ET in j["Preise"]:
+            if ET == str(Bedarf["Dimensionen"]["Dimension X"]) + "x" + str(Bedarf["Dimensionen"]["Dimension Y"]):
+                Liste.append(j["Preise"][ET])
+
+        for ET in j["Zeiten"]:
+            if ET == str(Bedarf["Dimensionen"]["Dimension X"]) + "x" + str(Bedarf["Dimensionen"]["Dimension Y"]):
+                Liste.append(j["Zeiten"][ET])
+
+        Liste.append(j["Fehlerquote"])
+        Liste_Fertig[item] = Liste
+
 
 def f(a, b, c):
     Güte = a + b + 2*c

@@ -26,14 +26,12 @@ Skill = json.loads(Skill)
 
 
 '''Entscheidungsvariablen für die Vergabe von Aufträgen'''
-Preise = json.dumps({"Kreis D5": 5, "Kreis D6": 6, "Kreis D7": 7, "Kreis D8": 8, "Kreis D9": 9, "Kreis D10": 10,
-                    "Kreis D11": 11, "Kreis D12": 12, "Kreis D13": 13, "Kreis D14": 14, "Kreis D15": 15,
-                    "Kreis D16": 16, "Kreis D17": 17, "Kreis D18": 18, "Kreis D19": 19, "Kreis D20": 20})
+Preise = json.dumps({"5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "10": 10, "11": 11, "12": 12, "13": 13, "14": 14, "15": 15,
+                    "16": 16, "17": 17, "18": 18, "19": 19, "20": 20})
 Preise = json.loads(Preise)
 
-Zeiten = json.dumps({"Kreis D5": 50, "Kreis D6": 60, "Kreis D7": 70, "Kreis D8": 80, "Kreis D9": 90, "Kreis D10": 100,
-                    "Kreis D11": 110, "Kreis D12": 120, "Kreis D13": 130, "Kreis D14": 140, "Kreis D15": 150,
-                   "Kreis D16": 160, "Kreis D17": 170, "Kreis D18": 180, "Kreis D19": 190, "Kreis D20": 200})
+Zeiten = json.dumps({"5": 50, "6": 60, "7": 70, "8": 80, "9": 90, "10": 100, "11": 110, "12": 120, "13": 130, "14": 140,
+                     "15": 150, "16": 160, "17": 170, "18": 180, "19": 190, "20": 200})
 Zeiten = json.loads(Zeiten)
 
 Fehlerquote = 0.1

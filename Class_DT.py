@@ -119,19 +119,61 @@ class Product_Demand_Digital_Twin(Digital_Twin):
         self.Broker_2.publish(self.Topic + "/Bedarf", json.dumps({"Name": self.Name, "Bedarf": self.Bedarf}))
         while True:
             Nachricht = self.Q.get()
-            # Ermittelt, wer der Beste ist
-            # H = {}
-            # for DT in ListeHersteller:
-            #     DigitalTwin = getTwin(DT)
-            #     if DigitalTwin is not None:
-            #         H[DT] = [DigitalTwin.Ich_bin()["Preise"]["Kreis D5"], DigitalTwin.Ich_bin()["Zeiten"]["Kreis D5"],
-            #                  DigitalTwin.Ich_bin()["Fehlerquote"]]
-            #         print(H)
-            # Liste = {"Eins": [1, 1, 1], "Zwei": [2, 2, 2], "Drei": [3, 3, 3]}
-            print(Nachricht[0].Ich_bin())
-            print(type(Nachricht[0]))
-            '''muss angepasst werden!!! bis hier läuft es'''
-            Name = Nachricht["DTs"]
+            '''Ermittelt, wer der Beste ist'''
+            Liste_Hersteller = {}
+            for DT in Nachricht:
+                Twin = DT.Ich_bin()
+                TwinName = Twin["Name"]
+                if self.Bedarf["Art"] == "Loch":
+                    Liste = []
+                    for ET in Twin["Preise"]:
+                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                            Liste.append(Twin["Preise"][ET])
+
+                    for ET in Twin["Zeiten"]:
+                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                            Liste.append(Twin["Zeiten"][ET])
+
+                    Liste.append(Twin["Fehlerquote"])
+                    Liste_Hersteller[TwinName] = Liste
+
+                if self.Bedarf["Art"] == "Kreis":
+                    Liste = []
+                    for ET in Twin["Preise"]:
+                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                            Liste.append(Twin["Preise"][ET])
+
+                    for ET in Twin["Zeiten"]:
+                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                            Liste.append(Twin["Zeiten"][ET])
+
+                    Liste.append(Twin["Fehlerquote"])
+                    Liste_Hersteller[TwinName] = Liste
+
+                if self.Bedarf["Art"] == "Rechteck":
+                    Liste = []
+                    for ET in Twin["Preise"]:
+                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" +\
+                                str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                            Liste.append(Twin["Preise"][ET])
+
+                    for ET in Twin["Zeiten"]:
+                        if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" +\
+                                str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                            Liste.append(Twin["Zeiten"][ET])
+
+                    Liste.append(Twin["Fehlerquote"])
+                    Liste_Hersteller[TwinName] = Liste
+
+            for DT in Liste_Hersteller:
+                Güte = Liste_Hersteller[DT][0] + Liste_Hersteller[DT][1] + 2 * Liste_Hersteller[DT][2]
+                Liste_Hersteller[DT] = Güte
+
+            MinWert = min(Liste_Hersteller.values())
+            MinHersteller = [k for k, v in Liste_Hersteller.items() if v == MinWert]
+
+            '''Wenn mehrere DTs den gleichen Wert haben, nimm den ersten'''
+            Hersteller = MinHersteller[0]
             self.Broker_2.publish(self.Topic + "/Herstellen", json.dumps({"Auftraggeber": self.Name,
-                                                                           "Hersteller": Name,
+                                                                           "Hersteller": Hersteller,
                                                                            "Bedarf": self.Bedarf}))
