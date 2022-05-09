@@ -15,7 +15,7 @@ _timeout = 60
 Fähigkeit nur für ADTs ausfüllen und Bedarf nur für PDDTs ausfüllen."""
 Maschinenname = "Tester_PDDT"
 MaschinenTyp = "PDDT"
-Bedarf = json.dumps({"Art": "Rechteck", "Material": "ST 37", "Geometrie": "Kreis",
+Bedarf = json.dumps({"Art": "Tasche", "Material": "ST 37", "Geometrie": "Kreis",
                      "Dimensionen": {"Dimension X": 20, "Dimension Y": 20, "Dimension Z": 20}})
 Bedarf = json.loads(Bedarf)
 

@@ -126,49 +126,65 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                 TwinName = Twin["Name"]
                 '''Error Handling, falls Twin mit falschem Skill übergeben wird'''
                 try:
-                    if self.Bedarf["Art"] == "Loch":
-                        Liste = []
-                        for ET in Twin["Preise"]:
-                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
-                                Liste.append(Twin["Preise"][ET])
+                    if self.Bedarf["Art"] == "Tasche":
+                        if self.Bedarf ["Geometrie"] == "Kreis":
+                            Liste = []
+                            for ET in Twin["Preise"]:
+                                if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                    Liste.append(Twin["Preise"][ET])
 
-                        for ET in Twin["Zeiten"]:
-                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
-                                Liste.append(Twin["Zeiten"][ET])
+                            for ET in Twin["Zeiten"]:
+                                if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                    Liste.append(Twin["Zeiten"][ET])
 
-                        Liste.append(Twin["Fehlerquote"])
-                        Liste_Hersteller[TwinName] = Liste
+                            Liste.append(Twin["Fehlerquote"])
+                            Liste_Hersteller[TwinName] = Liste
 
-                    if self.Bedarf["Art"] == "Kreis":
-                        Liste = []
-                        for ET in Twin["Preise"]:
-                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
-                                Liste.append(Twin["Preise"][ET])
+                        elif self.Bedarf ["Geometrie"] == "Rechteck":
+                            for ET in Twin["Preise"]:
+                                print(ET)
+                                print(type(ET))
+                                if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" + \
+                                        str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                                    Liste.append(Twin["Preise"][ET])
 
-                        for ET in Twin["Zeiten"]:
-                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
-                                Liste.append(Twin["Zeiten"][ET])
+                            for ET in Twin["Zeiten"]:
+                                if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" + \
+                                        str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                                    Liste.append(Twin["Zeiten"][ET])
 
-                        Liste.append(Twin["Fehlerquote"])
-                        Liste_Hersteller[TwinName] = Liste
+                            Liste.append(Twin["Fehlerquote"])
+                            Liste_Hersteller[TwinName] = Liste
 
-                    if self.Bedarf["Art"] == "Rechteck":
-                        Liste = []
-                        print("TESTE")
-                        for ET in Twin["Preise"]:
-                            print(ET)
-                            print(type(ET))
-                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" +\
-                                    str(self.Bedarf["Dimensionen"]["Dimension Y"]):
-                                Liste.append(Twin["Preise"][ET])
+                    elif self.Bedarf["Art"] == "Aufsatz":
+                        if self.Bedarf["Geometrie"] == "Kreis":
+                            Liste = []
+                            for ET in Twin["Preise"]:
+                                if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                    Liste.append(Twin["Preise"][ET])
 
-                        for ET in Twin["Zeiten"]:
-                            if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" +\
-                                    str(self.Bedarf["Dimensionen"]["Dimension Y"]):
-                                Liste.append(Twin["Zeiten"][ET])
+                            for ET in Twin["Zeiten"]:
+                                if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                    Liste.append(Twin["Zeiten"][ET])
 
-                        Liste.append(Twin["Fehlerquote"])
-                        Liste_Hersteller[TwinName] = Liste
+                            Liste.append(Twin["Fehlerquote"])
+                            Liste_Hersteller[TwinName] = Liste
+
+                        elif self.Bedarf["Geometrie"] == "Rechteck":
+                            for ET in Twin["Preise"]:
+                                print(ET)
+                                print(type(ET))
+                                if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" + \
+                                        str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                                    Liste.append(Twin["Preise"][ET])
+
+                            for ET in Twin["Zeiten"]:
+                                if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" + \
+                                        str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                                    Liste.append(Twin["Zeiten"][ET])
+
+                            Liste.append(Twin["Fehlerquote"])
+                            Liste_Hersteller[TwinName] = Liste
                 except:
                     continue
             print(Liste)
