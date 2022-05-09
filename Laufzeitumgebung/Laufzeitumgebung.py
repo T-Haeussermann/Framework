@@ -1,12 +1,10 @@
 import json
-import signal
 import threading
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from MQTT import MQTT
-from queue import Queue
 import uvicorn
 from fastapi import FastAPI
-from API.Class_Server import Server
+from Class_Server import Server
 from Class_Influxdb import Influxdb
 
 
@@ -22,8 +20,8 @@ _topic_sub1 = "Laufzeitumgebung/#"
 '''Variablen für MQTT-Broker 2'''
 _username2 = ""
 _passwd2 = ""
-_host2 = "127.0.0.1"
-_port2 = 1883
+_host2 = "192.168.178.70"
+_port2 = 1884
 _timeout2 = 60
 _topic_sub2 = "Laufzeitumgebung/#"
 
@@ -31,7 +29,7 @@ _topic_sub2 = "Laufzeitumgebung/#"
 Event = threading.Event()
 
 '''Variablen für Influxdb'''
-url = "http://localhost:8086"
+url = "192.168.178.70" + ":8086"
 token = "-DnCnjPN_w0JbBzX6cPLMqdoSyJsne31lj4985R88bRj1pCp_Bi_434T5dwHgq1klKGLumx2joHU65P3l1M0cQ=="
 org = "Laufzeitumgebung"
 bucket = "Messwerte"
@@ -203,7 +201,9 @@ async def Twins(Name, Attribut1=None, Attribut2 =None, Attribut3=None, Attribut4
                                 return Twin
 
 '''Server für API instanziieren
-https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread'''
+https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread
+host="0.0.0.0" für globales hosten https://www.uvicorn.org/settings/#socket-binding
+https://stackoverflow.com/questions/62898917/running-fastapi-app-using-uvicorn-on-ubuntu-server'''
 config = uvicorn.Config(App, host="127.0.0.1", port=7000, log_level="info")
 server = Server(config=config)
 

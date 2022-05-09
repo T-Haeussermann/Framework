@@ -172,8 +172,6 @@ class Product_Demand_Digital_Twin(Digital_Twin):
 
                         elif self.Bedarf["Geometrie"] == "Rechteck":
                             for ET in Twin["Preise"]:
-                                print(ET)
-                                print(type(ET))
                                 if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" + \
                                         str(self.Bedarf["Dimensionen"]["Dimension Y"]):
                                     Liste.append(Twin["Preise"][ET])
@@ -187,8 +185,7 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                             Liste_Hersteller[TwinName] = Liste
                 except:
                     continue
-            print(Liste)
-            print(Liste_Hersteller)
+
             for DT in Liste_Hersteller:
                 Güte = Liste_Hersteller[DT][0] + Liste_Hersteller[DT][1] + 2 * Liste_Hersteller[DT][2]
                 Liste_Hersteller[DT] = Güte
@@ -199,7 +196,6 @@ class Product_Demand_Digital_Twin(Digital_Twin):
 
             '''Wenn mehrere DTs den gleichen Wert haben, nimm den ersten'''
             Hersteller = MinHersteller[0]
-            print(Hersteller)
             self.Broker_2.publish(self.Topic + "/Herstellen", json.dumps({"Auftraggeber": self.Name,
                                                                            "Hersteller": Hersteller,
                                                                            "Bedarf": self.Bedarf}))
