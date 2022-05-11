@@ -1,0 +1,20 @@
+version: '3.4'
+
+services:
+  docker:
+    image: docker
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    restart: always
+    expose:
+      - 1883
+      - 1884
+      - 7000
+
+    ports:
+      - 1883:1883
+      - 1884:1884
+      - 7000:7000
+
+

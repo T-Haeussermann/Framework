@@ -204,7 +204,7 @@ async def Twins(Name, Attribut1=None, Attribut2 =None, Attribut3=None, Attribut4
 https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread
 host="0.0.0.0" für globales hosten https://www.uvicorn.org/settings/#socket-binding
 https://stackoverflow.com/questions/62898917/running-fastapi-app-using-uvicorn-on-ubuntu-server'''
-config = uvicorn.Config(App, host="127.0.0.1", port=7000, log_level="info")
+config = uvicorn.Config(App, host="0.0.0.0", port=7000, log_level="info")
 server = Server(config=config)
 
 with server.run_in_thread():
