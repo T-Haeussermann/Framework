@@ -1,20 +1,29 @@
-import json
-
 from SPARQLWrapper import SPARQLWrapper, JSON
-import html
+import json
 
 
 '''https://rebeccabilbro.github.io/sparql-from-python/'''
 
-# Specify the DBPedia endpoint
+# Specify the fuseki endpoint
 sparql = SPARQLWrapper("http://twinserver.kve.hs-mannheim.de:38443/DMP")
 
-# Query for the description of "Capsaicin", filtered by language
+# Query
+# sparql.setQuery("""
+# PREFIX DMP: <http://www.semanticweb.org/lober/ontologies/2022/1/DMP#>
+#
+# SELECT ?Product ?ProductionPlan
+# WHERE {?Product DMP:hasProductionPlan ?ProductionPlan.
+# }
+# """)
+
 sparql.setQuery("""
 PREFIX DMP: <http://www.semanticweb.org/lober/ontologies/2022/1/DMP#>
 
-SELECT ?Product ?ProductionPlan
-WHERE {?Product DMP:hasProductionPlan ?ProductionPlan.
+
+SELECT ?ProductionResource ?Service
+WHERE {?ProductionResource DMP:offersProductionService ?Service .
+       ?ProductionResource DMP:processToM ?Metal .
+       FILTER (?ProductionResource = DMP:Tester_ADT)
 }
 """)
 
