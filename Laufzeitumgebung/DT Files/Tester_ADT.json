@@ -1,0 +1,82 @@
+{
+    "Name": "Tester_ADT",
+    "Task": "Erstelle DT",
+    "Typ": "ADT",
+    "Sensoren": [
+        "S1",
+        "S2",
+        "S3",
+        "S4"
+    ],
+    "Kritische Werte": {
+        "S1": 30,
+        "S2": 50,
+        "S3": 25,
+        "S4": 17
+    },
+    "Operatoren": {
+        "S1": ">",
+        "S2": "<",
+        "S3": "<",
+        "S4": ">"
+    },
+    "Handlungen": {
+        "S1": "Kraft erhoehen",
+        "S2": "K\u00fchlmittel aktivieren",
+        "S3": "Gewicht erh\u00f6hen",
+        "S4": "Backrate steigern"
+    },
+    "Skill": {
+        "Art": "Bohren",
+        "Material": "ST 37",
+        "Geometrie": "Kreis",
+        "Dimensionen": {
+            "Dimension X": [
+                5,
+                20
+            ],
+            "Dimension Y": [
+                5,
+                20
+            ],
+            "Dimension Z": 20
+        }
+    },
+    "Preise": {
+        "5": 5,
+        "6": 6,
+        "7": 7,
+        "8": 8,
+        "9": 9,
+        "10": 10,
+        "11": 11,
+        "12": 12,
+        "13": 13,
+        "14": 14,
+        "15": 15,
+        "16": 16,
+        "17": 17,
+        "18": 18,
+        "19": 19,
+        "20": 20
+    },
+    "Zeiten": {
+        "5": 50,
+        "6": 60,
+        "7": 70,
+        "8": 80,
+        "9": 90,
+        "10": 100,
+        "11": 110,
+        "12": 120,
+        "13": 130,
+        "14": 140,
+        "15": 150,
+        "16": 160,
+        "17": 170,
+        "18": 180,
+        "19": 190,
+        "20": 200
+    },
+    "Fehlerquote": 0.1
+}

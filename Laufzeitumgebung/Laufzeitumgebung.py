@@ -6,6 +6,8 @@ import uvicorn
 from fastapi import FastAPI
 from Class_Server import Server
 from Class_Influxdb import Influxdb
+import os.path
+import os
 
 
 
@@ -104,6 +106,11 @@ def DT_nach_Typ_erstellen(Nachricht):
         print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
         DT_Thread.start()
+        Pfad = "DT Files/" + Nachricht["Name"] + ".json"
+        if os.path.isfile(Pfad) == False:
+            with open(Pfad, "w") as outfile:
+                json.dump(Nachricht, outfile, indent=4)
+
         print(DT_Thread.name + " name of thread")
 
     elif Nachricht["Typ"] == "PDDT":
@@ -114,6 +121,12 @@ def DT_nach_Typ_erstellen(Nachricht):
         print(Neuer_PDDT.Name + " vom Typ " + Neuer_PDDT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_PDDT.Name, target=Neuer_PDDT.PDDT_Ablauf)
         DT_Thread.start()
+
+        Pfad = "DT Files/" + Nachricht["Name"] + ".json"
+        if os.path.isfile(Pfad) == False:
+            with open(Pfad, "w") as outfile:
+                json.dump(Nachricht, outfile, indent=4)
+
         print(DT_Thread.name + " name of thread")
 
     elif Nachricht["Typ"] == "DT":
@@ -123,6 +136,12 @@ def DT_nach_Typ_erstellen(Nachricht):
         print(Neuer_DT.Name + " vom Typ " + Neuer_DT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_DT.Name, target=Neuer_DT.DT_Ablauf)
         DT_Thread.start()
+
+        Pfad = "DT Files/" + Nachricht["Name"] + ".json"
+        if os.path.isfile(Pfad) == False:
+            with open(Pfad, "w") as outfile:
+                json.dump(Nachricht, outfile, indent=4)
+
         print(DT_Thread.name + " name of thread")
 
 
@@ -211,6 +230,16 @@ with server.run_in_thread():
     # Server is started.
     '''Anzahl Twins muss einmal vor der Schleife definiert werden um jeder Zeit über die API zugreifen zu können.'''
     AnzahlTwins = len(ListeDTs)
+
+    '''https://stackoverflow.com/questions/30539679/python-read-several-json-files-from-a-folder
+    Läd alle json.files aus dem Ordner DT Files und startet diese DTs'''
+    for file_name in [file for file in os.listdir("DT Files/")]:
+        with open("DT Files/" + file_name, "r") as json_file:
+            data = json.load(json_file)
+            DT_nach_Typ_erstellen(data)
+    print(str(len(ListeDTs)) + " DTs laufen")
+
+
     while True:
         Event.wait()
         Event.clear()

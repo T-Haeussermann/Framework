@@ -1,0 +1,15 @@
+{
+    "Name": "Tester_PDDT",
+    "Typ": "PDDT",
+    "Task": "Erstelle DT",
+    "Bedarf": {
+        "Art": "Tasche",
+        "Material": "ST 37",
+        "Geometrie": "Kreis",
+        "Dimensionen": {
+            "Dimension X": 20,
+            "Dimension Y": 20,
+            "Dimension Z": 20
+        }
+    }
+}
