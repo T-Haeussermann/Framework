@@ -1,4 +1,4 @@
-from SPARQLWrapper import SPARQLWrapper, JSON
+sparql 1.pyfrom SPARQLWrapper import SPARQLWrapper, JSON
 
 
 '''https://rebeccabilbro.github.io/sparql-from-python/'''
