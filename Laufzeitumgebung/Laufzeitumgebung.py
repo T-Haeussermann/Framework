@@ -226,24 +226,15 @@ async def Twins(Name, Attribut1=None, Attribut2 =None, Attribut3=None, Attribut4
                                 Twin = Twin.Ich_bin()[Attribut1][Attribut2][Attribut3][Attribut4][Attribut5]
                                 return Twin
 
-'''Erstellt einen DT vom Typ PDDT'''
-@App.put("/PDDT/{Name}/{Typ}/{Material}/{Art}/{Geometrie}/{Dimension X}/{Dimension Y}/{Dimension Z}")
-async def PDDT_Erstellen(Name, Typ, Material,)
-{
-    "Name": "Tester_PDDT",
-    "Typ": "PDDT",
-    "Task": "Erstelle DT",
-    "Bedarf": {
-        "Art": "Tasche",
-        "Material": "ST 37",
-        "Geometrie": "Kreis",
-        "Dimensionen": {
-            "Dimension X": 20,
-            "Dimension Y": 20,
-            "Dimension Z": 20
-        }
-    }
-}
+'''Erstellt einen DT vom Typ PDDT Test URL: http://127.0.0.1:7000/PDDT/Tester_PDDT/ST%2037/Tasche/Kreis/20/20/20'''
+@App.put("/PDDT/{Name}/{Material}/{Art}/{Geometrie}/{Dimension_X}/{Dimension_Y}/{Dimension_Z}")
+async def PDDT_Erstellen(Name, Material, Art, Geometrie, Dimension_X, Dimension_Y, Dimension_Z):
+    Nachricht = json.dumps({"Name": Name, "Typ": "PDDT", "Task": "Erstelle DT", "Bedarf": {
+                "Art": Art, "Material": Material, "Geometrie": Geometrie, "Dimensionen": {
+                "Dimension X": Dimension_X, "Dimension X": Dimension_Y, "Dimension Z": Dimension_Z}}})
+    Nachricht = json.loads(Nachricht)
+    DT_nach_Typ_erstellen(Nachricht)
+    return "PDDT wurde erstellt"
 
 '''Beendet die Ausführung eines DTs und entfernt sein json file, um einen Neustart zu verhindern'''
 @App.delete("/kill/{Name}")

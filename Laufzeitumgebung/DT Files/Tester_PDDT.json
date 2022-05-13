@@ -7,9 +7,8 @@
         "Material": "ST 37",
         "Geometrie": "Kreis",
         "Dimensionen": {
-            "Dimension X": 20,
-            "Dimension Y": 20,
-            "Dimension Z": 20
+            "Dimension X": "20",
+            "Dimension Z": "20"
         }
     }
 }
