@@ -55,7 +55,7 @@ class Influxdb:
 
         else:
             query = '''from(bucket: "''' + Name + '''")
-                |> range(start: -1h)
+                |> range(start: -1000h)
                 |> filter(fn: (r) => r["_measurement"] == "Messwerte")
                 |> filter(fn: (r) => r["Sensor"] == "''' + Sensor + '''")
                 |> last()'''

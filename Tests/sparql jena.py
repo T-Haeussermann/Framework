@@ -20,10 +20,10 @@ sparql.setQuery("""
 PREFIX DMP: <http://www.semanticweb.org/lober/ontologies/2022/1/DMP#>
 
 
-SELECT ?ProductionResource ?Service
-WHERE {?ProductionResource DMP:offersProductionService ?Service .
-       ?ProductionResource DMP:processToM ?Metal .
-       FILTER (?ProductionResource = DMP:Tester_ADT)
+SELECT ?ProductionResource ?Service ?TypeOfMaterial
+WHERE {
+       ?ProductionResource DMP:processToM ?TypeOfMaterial .
+       FILTER (?TypeOfMaterial = DMP:Metal)
 }
 """)
 
@@ -37,7 +37,7 @@ result = sparql.query().convert()
 
 #print(json.dumps(result,sort_keys=True, indent=4))
 #print(type(result))
-
+#
 for hit in result["results"]["bindings"]:
     for item in hit:
         print(str(item) + ": " + str(hit[item]["value"].replace("http://www.semanticweb.org/lober/ontologies/2022/1/DMP#","")))

@@ -6,6 +6,7 @@ import uvicorn
 from fastapi import FastAPI
 from Class_Server import Server
 from Class_Influxdb import Influxdb
+from Class_Ontologie import Ontologie
 import os.path
 import os
 
@@ -38,7 +39,6 @@ bucket = "Messwerte"
 
 '''Weitere Variablen'''
 ListeDTs = []
-
 
 def Nachricht_auswerten_Broker_1(Topic, Nachricht):
     '''Wertet die eingehende Nachricht auf dem Broker 1 anhand des Topics aus
@@ -91,7 +91,8 @@ def Abfrage_Ontologie_Server(Topic, Nachricht):
 
     Anfrager = getTwin(Nachricht["Name"])
     if Anfrager is not None:
-        Anfrager.Q.put(Hersteller)
+        if Hersteller is not []:
+            Anfrager.Q.put(Hersteller)
 
 
 def DT_nach_Typ_erstellen(Nachricht):
@@ -101,15 +102,17 @@ def DT_nach_Typ_erstellen(Nachricht):
         Neuer_ADT = Asset_Digital_Twin(Nachricht["Name"], Nachricht["Typ"], Nachricht["Sensoren"],
                                        Broker_1, Broker_2, DB_Client, Nachricht["Kritische Werte"],
                                        Nachricht["Operatoren"], Nachricht["Handlungen"], Nachricht["Skill"],
-                                       Nachricht["Preise"], Nachricht["Zeiten"], Nachricht["Fehlerquote"])
+                                       Nachricht["Preise"], Nachricht["Zeiten"], Nachricht["Fehlerquote"],
+                                       Ontologie_Client)
         ListeDTs.append(Neuer_ADT)
         print(Neuer_ADT.Name + " vom Typ " + Neuer_ADT.Typ + " Aus der Laufzeitumgebung gesendet")
         DT_Thread = threading.Thread(name=Neuer_ADT.Name, target=Neuer_ADT.ADT_Ablauf)
         DT_Thread.start()
         Pfad = "DT Files/" + Nachricht["Name"] + ".json"
+
         if os.path.isfile(Pfad) == False:
-            with open(Pfad, "w") as outfile:
-                json.dump(Nachricht, outfile, indent=4)
+            with open(Pfad, "w", encoding='utf8') as outfile:
+                json.dump(Nachricht, outfile, indent=4, ensure_ascii=False)
 
         print(DT_Thread.name + " name of thread")
 
@@ -124,8 +127,8 @@ def DT_nach_Typ_erstellen(Nachricht):
 
         Pfad = "DT Files/" + Nachricht["Name"] + ".json"
         if os.path.isfile(Pfad) == False:
-            with open(Pfad, "w") as outfile:
-                json.dump(Nachricht, outfile, indent=4)
+            with open(Pfad, "w", encoding='utf8') as outfile:
+                json.dump(Nachricht, outfile, indent=4, ensure_ascii=False)
 
         print(DT_Thread.name + " name of thread")
 
@@ -139,8 +142,8 @@ def DT_nach_Typ_erstellen(Nachricht):
 
         Pfad = "DT Files/" + Nachricht["Name"] + ".json"
         if os.path.isfile(Pfad) == False:
-            with open(Pfad, "w") as outfile:
-                json.dump(Nachricht, outfile, indent=4)
+            with open(Pfad, "w", encoding='utf8') as outfile:
+                json.dump(Nachricht, outfile, indent=4, ensure_ascii=False)
 
         print(DT_Thread.name + " name of thread")
 
@@ -166,6 +169,9 @@ Broker_2.run()
 Lock_DB_Client = threading.Lock()
 DB_Client = Influxdb(url, token, org, Lock_DB_Client)
 
+'''Locks für Ontologie erzeugen und Verbindung zum Server instanziieren'''
+Ontologie_Client = Ontologie()
+
 
 '''App für Get-Request instanziieren'''
 App = FastAPI()
@@ -174,6 +180,7 @@ App = FastAPI()
 '''Gibt Anzahl der aktiven DTs zurück'''
 @App.get("/get-twin-number/")
 async def Anzahl_Twins():
+    AnzahlTwins = len(ListeDTs)
     return json.loads(json.dumps({"Anzahl Twins": AnzahlTwins}))
 
 '''Gibt den letzten Messwert des angegebenen DTs und Sensors zurück. Wird der Name des Sensors auf all gestellt,
@@ -219,6 +226,41 @@ async def Twins(Name, Attribut1=None, Attribut2 =None, Attribut3=None, Attribut4
                                 Twin = Twin.Ich_bin()[Attribut1][Attribut2][Attribut3][Attribut4][Attribut5]
                                 return Twin
 
+'''Erstellt einen DT vom Typ PDDT'''
+@App.put("/PDDT/{Name}/{Typ}/{Material}/{Art}/{Geometrie}/{Dimension X}/{Dimension Y}/{Dimension Z}")
+async def PDDT_Erstellen(Name, Typ, Material,)
+{
+    "Name": "Tester_PDDT",
+    "Typ": "PDDT",
+    "Task": "Erstelle DT",
+    "Bedarf": {
+        "Art": "Tasche",
+        "Material": "ST 37",
+        "Geometrie": "Kreis",
+        "Dimensionen": {
+            "Dimension X": 20,
+            "Dimension Y": 20,
+            "Dimension Z": 20
+        }
+    }
+}
+
+'''Beendet die Ausführung eines DTs und entfernt sein json file, um einen Neustart zu verhindern'''
+@App.delete("/kill/{Name}")
+async def kill(Name):
+    threadtokill = getTwin(Name)
+    if threadtokill is not None:
+        os.remove("DT Files/" + Name + ".json")
+        ListeDTs.remove(threadtokill)
+        threadtokill.Q.put("Kill")
+        if threadtokill.Typ == "ADT":
+            Ontologie_Client.Löschen(Name)
+        print(str(len(ListeDTs)) + " DTs laufen")
+        return "Digital Twin wurde gelöscht"
+
+    else:
+        return "Digital Twin existiert nicht"
+
 '''Server für API instanziieren
 https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread
 host="0.0.0.0" für globales hosten https://www.uvicorn.org/settings/#socket-binding
@@ -238,7 +280,6 @@ with server.run_in_thread():
             data = json.load(json_file)
             DT_nach_Typ_erstellen(data)
     print(str(len(ListeDTs)) + " DTs laufen")
-
 
     while True:
         Event.wait()
