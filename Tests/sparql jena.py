@@ -18,12 +18,18 @@ sparql = SPARQLWrapper("http://twinserver.kve.hs-mannheim.de:38443/DMP")
 
 sparql.setQuery("""
 PREFIX DMP: <http://www.semanticweb.org/lober/ontologies/2022/1/DMP#>
+PREFIX owl:  <http://www.w3.org/2002/07/owl#>
+PREFIX rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#>
+PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
+PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
 
-SELECT ?ProductionResource ?Service ?TypeOfMaterial
+SELECT ?ProductionResource ?Service ?TypeOfMaterial ?maxThickness
 WHERE {
        ?ProductionResource DMP:processToM ?TypeOfMaterial .
-       FILTER (?TypeOfMaterial = DMP:Metal)
+       ?ProductionResource DMP:offersProductionService ?Service .
+       ?ProductionResource DMP:P1 ?maxThickness .
+       FILTER (?ProductionResource = DMP:Tester_ADT)
 }
 """)
 
@@ -35,8 +41,8 @@ result = sparql.query().convert()
 #     print(item["o"]["value"])
 
 
-#print(json.dumps(result,sort_keys=True, indent=4))
-#print(type(result))
+print(json.dumps(result,sort_keys=True, indent=4))
+print(type(result))
 #
 for hit in result["results"]["bindings"]:
     for item in hit:
