@@ -32,7 +32,12 @@ class Ontologie:
         # Convert results to JSON format
         self.sparql.setReturnFormat(JSON)
         Result = self.sparql.query().convert()
-        return Result
+        ListeHersteller = []
+        for hit in Result["results"]["bindings"]:
+            for item in hit:
+                Hersteller = hit[item]["value"].replace("http://www.semanticweb.org/lober/ontologies/2022/1/DMP#", "")
+                ListeHersteller.append(Hersteller)
+        return ListeHersteller
 
     def Anlegen(self, Insert):
         self.sparql.setQuery(self.Prefix + " " + Insert)

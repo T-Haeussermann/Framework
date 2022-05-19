@@ -1,8 +1,9 @@
 from SPARQLWrapper import SPARQLWrapper, JSON
 import json
 
-Preise = json.dumps({"P5": 5, "P6": 6, "P7": 7, "P8": 8, "P9": 9, "P10": 10, "P11": 11, "P12": 12, "P13": 13, "P14": 14,
-                     "P15": 15, "P16": 16, "P17": 17, "P18": 18, "P19": 19, "P20": 20})
+Preise = json.dumps({"P5": 5.0, "P6": 6.0, "P7": 7.0, "P8": 8.0, "P9": 9.0, "P10": 10.0, "P11": 11.0, "P12": 12.0,
+                     "P13": 13.0, "P14": 14.0, "P15": 15.0, "P16": 16.0, "P17": 17.0, "P18": 18.0, "P19": 19.0,
+                     "P20": 20.0})
 Preise = json.loads(Preise)
 
 '''https://rebeccabilbro.github.io/sparql-from-python/'''

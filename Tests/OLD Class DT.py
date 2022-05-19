@@ -180,40 +180,81 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                 for DT in Nachricht:
                     Twin = DT.Ich_bin()
                     TwinName = Twin["Name"]
-                    Kriterien = json.dumps({"Preise": Twin["Preise"], "Zeiten": Twin["Zeiten"],
-                                                            "Fehlerquote": Twin["Fehlerquote"]})
-                    Liste_Hersteller[TwinName] = json.loads(Kriterien)
+                    '''Error Handling, falls Twin mit falschem Skill übergeben wird'''
+                    try:
+                        if self.Bedarf["Art"] == "Tasche":
+                            if self.Bedarf ["Geometrie"] == "Kreis":
+                                Liste = []
+                                for ET in Twin["Preise"]:
+                                    if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                        Liste.append(Twin["Preise"][ET])
 
+                                for ET in Twin["Zeiten"]:
+                                    if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                        Liste.append(Twin["Zeiten"][ET])
+
+                                Liste.append(Twin["Fehlerquote"])
+                                Liste_Hersteller[TwinName] = Liste
+
+                            elif self.Bedarf ["Geometrie"] == "Rechteck":
+                                for ET in Twin["Preise"]:
+                                    print(ET)
+                                    print(type(ET))
+                                    if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" + \
+                                            str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                                        Liste.append(Twin["Preise"][ET])
+
+                                for ET in Twin["Zeiten"]:
+                                    if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" + \
+                                            str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                                        Liste.append(Twin["Zeiten"][ET])
+
+                                Liste.append(Twin["Fehlerquote"])
+                                Liste_Hersteller[TwinName] = Liste
+
+                        elif self.Bedarf["Art"] == "Aufsatz":
+                            if self.Bedarf["Geometrie"] == "Kreis":
+                                Liste = []
+                                for ET in Twin["Preise"]:
+                                    if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                        Liste.append(Twin["Preise"][ET])
+
+                                for ET in Twin["Zeiten"]:
+                                    if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]):
+                                        Liste.append(Twin["Zeiten"][ET])
+
+                                Liste.append(Twin["Fehlerquote"])
+                                Liste_Hersteller[TwinName] = Liste
+
+                            elif self.Bedarf["Geometrie"] == "Rechteck":
+                                for ET in Twin["Preise"]:
+                                    if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" + \
+                                            str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                                        Liste.append(Twin["Preise"][ET])
+
+                                for ET in Twin["Zeiten"]:
+                                    if ET == str(self.Bedarf["Dimensionen"]["Dimension X"]) + "x" + \
+                                            str(self.Bedarf["Dimensionen"]["Dimension Y"]):
+                                        Liste.append(Twin["Zeiten"][ET])
+
+                                Liste.append(Twin["Fehlerquote"])
+                                Liste_Hersteller[TwinName] = Liste
+                    except:
+                        continue
 
                 for DT in Liste_Hersteller:
-                    print(Liste_Hersteller[DT])
-                    if Liste_Hersteller[DT]["Preise"]["priceFunction"] == "linear":
-                        minZerspanvolumen = Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["minDiameterHoleResource"] *\
-                                            Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["minDiameterHoleResource"] *\
-                                            Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["minDepth"]
-                        maxZerspanvolumen = Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["maxDiameterHoleResource"] *\
-                                            Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["maxDiameterHoleResource"] *\
-                                            Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["maxDepth"]
-                        Steigung = (Liste_Hersteller[DT]["maxPrice"]-DT["minPrice"])/(maxZerspanvolumen-minZerspanvolumen)
-                        Abschnitt = Liste_Hersteller[DT]["Preise"]["minPrice"] - minZerspanvolumen * Steigung
-                        Preis = (self.Bedarf["Dimensionen"]["DiameterHoleResource"] *\
-                                self.Bedarf["Dimensionen"]["Depth"] *\
-                                self.Bedarf["Dimensionen"]["DiameterHoleResource"]) * Steigung + Abschnitt
-                        print(Preis)
+                    Güte = Liste_Hersteller[DT][0] + Liste_Hersteller[DT][1] + 2 * Liste_Hersteller[DT][2]
+                    Liste_Hersteller[DT] = Güte
 
-                # for DT in Liste_Hersteller:
-                #     Güte = Liste_Hersteller[DT][0] + Liste_Hersteller[DT][1] + 2 * Liste_Hersteller[DT][2]
-                #     Liste_Hersteller[DT] = Güte
+                '''https://stackoverflow.com/questions/3282823/get-the-key-corresponding-to-the-minimum-value-within-a-dictionary'''
+                MinWert = min(Liste_Hersteller.values())
+                MinHersteller = [k for k, v in Liste_Hersteller.items() if v == MinWert]
 
-                # '''https://stackoverflow.com/questions/3282823/get-the-key-corresponding-to-the-minimum-value-within-a-dictionary'''
-                # MinWert = min(Liste_Hersteller.values())
-                # MinHersteller = [k for k, v in Liste_Hersteller.items() if v == MinWert]
-                #
-                # '''Wenn mehrere DTs den gleichen Wert haben, nimm den ersten'''
-                # Hersteller = MinHersteller[0]
-                # self.Broker_2.publish(self.Topic + "/Herstellen", json.dumps({"Auftraggeber": self.Name,
-                #                                                                "Hersteller": Hersteller,
-                #                                                                "Bedarf": self.Bedarf}))
+                '''Wenn mehrere DTs den gleichen Wert haben, nimm den ersten'''
+                Hersteller = MinHersteller[0]
+                self.Broker_2.publish(self.Topic + "/Herstellen", json.dumps({"Auftraggeber": self.Name,
+                                                                               "Hersteller": Hersteller,
+                                                                               "Bedarf": self.Bedarf}))
 
             if Nachricht == "Kill":
                 break

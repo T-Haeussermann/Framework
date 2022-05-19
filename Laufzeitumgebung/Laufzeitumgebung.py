@@ -1,5 +1,7 @@
 import json
 import threading
+import time
+from waiting import wait
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from MQTT import MQTT
 import uvicorn
@@ -82,11 +84,32 @@ def Abfrage_Ontologie_Server(Topic, Nachricht):
     '''Führt eine Abfrage auf dem Ontologie-Server durch und gibt die DTs zurück, weleche diese bearbeiten können.'''
     print("Ich habe einen Bedarf erkannt und frage den Ontologie-Server wer das machen kann!")
     '''Liste der möglichen DTs erstellen mit den Werten, die bewertet werden'''
-    ListeHersteller = ["Tester_ADT", "Tester_ADT1", "Tester_ADT2"]
+    DiameterHoleResource = Nachricht["Bedarf"]["Dimensionen"]["DiameterHoleResource"]
+    Depth = Nachricht["Bedarf"]["Dimensionen"]["Depth"]
+    Thickness = Nachricht["Bedarf"]["Dimensionen"]["Thickness"]
+    Select = """SELECT ?ProductionResource"""
+    Where = """WHERE {
+               ?ProductionResource DMP:processToM ?TypeOfMaterial .
+               ?ProductionResource DMP:offersProductionService ?Service .
+               ?ProductionResource DMP:minDiameterHoleResource ?minDiameterHoleResource .
+               ?ProductionResource DMP:maxDiameterHoleResource ?maxDiameterHoleResource .
+               ?ProductionResource DMP:minDepth ?minDepth .
+               ?ProductionResource DMP:maxDepth ?maxDepth .
+               ?ProductionResource DMP:minThickness ?minThickness .
+               ?ProductionResource DMP:maxThickness ?maxThickness .
+               FILTER (?minDiameterHoleResource < """ + str(DiameterHoleResource) + """ ||
+                       ?maxDiameterHoleResource > """ + str(DiameterHoleResource) + """ ||
+                       ?minDepth < """ + str(Depth) + """ ||
+                       ?maxDepth > """ + str(Depth) + """ ||
+                       ?minThickness < """ + str(Thickness) + """ ||
+                       ?maxThickness > """ + str(Thickness) + """)
+}"""
+    ListeHersteller = Ontologie_Client.Abfrage(Select, Where)
     Hersteller = []
     for Twin in ListeHersteller:
         DT = getTwin(Twin)
         if DT is not None:
+            """Prüfen ob DT in der Laufzeitumgebung vorhanden ist"""
             Hersteller.append(DT)
 
     Anfrager = getTwin(Nachricht["Name"])
@@ -164,6 +187,8 @@ Broker_1 = MQTT(_username1, _passwd1, _host1, _port1, _topic_sub1, Event)
 Broker_2 = MQTT(_username2, _passwd2, _host2, _port2, _topic_sub2, Event)
 Broker_1.run()
 Broker_2.run()
+
+
 
 '''Lock für DB erzeugen und Verbindung zur Datenbank instanziieren'''
 Lock_DB_Client = threading.Lock()
@@ -264,12 +289,21 @@ with server.run_in_thread():
     '''Anzahl Twins muss einmal vor der Schleife definiert werden um jeder Zeit über die API zugreifen zu können.'''
     AnzahlTwins = len(ListeDTs)
 
+
+
     '''https://stackoverflow.com/questions/30539679/python-read-several-json-files-from-a-folder
-    Läd alle json.files aus dem Ordner DT Files und startet diese DTs'''
-    for file_name in [file for file in os.listdir("DT Files/")]:
-        with open("DT Files/" + file_name, "r") as json_file:
-            data = json.load(json_file)
-            DT_nach_Typ_erstellen(data)
+    Läd alle json.files aus dem Ordner DT Files und startet diese DTs. Wartet bis beide Broker verbunden sind,
+    dass bei einem Neustart die Laufzeitumgebung die Nachrichten mit den Bedarfen erhält'''
+    while True:
+        if Broker_1.client.is_connected() == True:
+            if Broker_2.client.is_connected() == True:
+                for file_name in [file for file in os.listdir("DT Files/")]:
+                    with open("DT Files/" + file_name, "r") as json_file:
+                        data = json.load(json_file)
+                        DT_nach_Typ_erstellen(data)
+                break
+        else:
+            pass
     print(str(len(ListeDTs)) + " DTs laufen")
 
     while True:

@@ -24,14 +24,13 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
 
-SELECT ?ProductionResource ?Service ?TypeOfMaterial ?maxThickness
+SELECT ?ProductionResource ?Service ?TypeOfMaterial
 WHERE {
-       ?ProductionResource DMP:processToM ?TypeOfMaterial .
-       ?ProductionResource DMP:offersProductionService ?Service .
-       ?ProductionResource DMP:P1 ?maxThickness .
-       FILTER (?ProductionResource = DMP:Tester_ADT)
-}
-""")
+               ?ProductionResource DMP:processToM ?TypeOfMaterial .
+               ?ProductionResource DMP:offersProductionService ?Service .
+               FILTER (?minDiameterHoleResource < 10 ||
+                       ?maxDiameterHoleResource > 10)
+}""")
 
 # Convert results to JSON format
 sparql.setReturnFormat(JSON)
