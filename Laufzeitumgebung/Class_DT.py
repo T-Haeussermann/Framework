@@ -254,7 +254,6 @@ class Product_Demand_Digital_Twin(Digital_Twin):
 
                 '''Auftrag für jeden Hersteller versenden'''
                 for DT in Hersteller:
-                    print(DT)
                     HK = Hersteller[DT]
                     self.Broker_2.publish(self.Topic + "/Herstellen/" + DT,
                                           json.dumps({"Auftraggeber": self.Name, "Hersteller": HK,
