@@ -83,39 +83,80 @@ def Nachricht_auswerten_Broker_2(Topic, Nachricht):
 def Abfrage_Ontologie_Server(Topic, Nachricht):
     '''Führt eine Abfrage auf dem Ontologie-Server durch und gibt die DTs zurück, weleche diese bearbeiten können.'''
     print("Ich habe einen Bedarf erkannt und frage den Ontologie-Server wer das machen kann!")
-    '''Liste der möglichen DTs erstellen mit den Werten, die bewertet werden'''
-    DiameterHoleResource = Nachricht["Bedarf"]["Dimensionen"]["DiameterHoleResource"]
-    Depth = Nachricht["Bedarf"]["Dimensionen"]["Depth"]
-    Thickness = Nachricht["Bedarf"]["Dimensionen"]["Thickness"]
+    '''Liste der möglichen DTs erstellen'''
+    Hersteller_Listen = {}
     Select = """SELECT ?ProductionResource"""
-    Where = """WHERE {
-               ?ProductionResource DMP:processToM ?TypeOfMaterial .
-               ?ProductionResource DMP:offersProductionService ?Service .
-               ?ProductionResource DMP:minDiameterHoleResource ?minDiameterHoleResource .
-               ?ProductionResource DMP:maxDiameterHoleResource ?maxDiameterHoleResource .
-               ?ProductionResource DMP:minDepth ?minDepth .
-               ?ProductionResource DMP:maxDepth ?maxDepth .
-               ?ProductionResource DMP:minThickness ?minThickness .
-               ?ProductionResource DMP:maxThickness ?maxThickness .
-               FILTER (?minDiameterHoleResource < """ + str(DiameterHoleResource) + """ ||
-                       ?maxDiameterHoleResource > """ + str(DiameterHoleResource) + """ ||
-                       ?minDepth < """ + str(Depth) + """ ||
-                       ?maxDepth > """ + str(Depth) + """ ||
-                       ?minThickness < """ + str(Thickness) + """ ||
-                       ?maxThickness > """ + str(Thickness) + """)
-}"""
-    ListeHersteller = Ontologie_Client.Abfrage(Select, Where)
-    Hersteller = []
-    for Twin in ListeHersteller:
-        DT = getTwin(Twin)
-        if DT is not None:
-            """Prüfen ob DT in der Laufzeitumgebung vorhanden ist"""
-            Hersteller.append(DT)
+    for item in Nachricht["Bedarf"]:
+        Schritt = Nachricht["Bedarf"][item]
+
+        if Schritt["ProductionService"] == "DrillingService":
+            TypeOfMaterial = Schritt["TypeOfMaterial"]
+            DiameterHoleResource = Schritt["Dimensionen"]["DiameterHoleResource"]
+            Depth = Schritt["Dimensionen"]["Depth"]
+            Thickness = Schritt["Dimensionen"]["Thickness"]
+            Where = """WHERE {
+                       ?ProductionResource DMP:offersProductionService ?Service .
+                       ?ProductionResource DMP:processToM ?TypeOfMaterial .
+                       ?ProductionResource DMP:minDiameterHoleResource ?minDiameterHoleResource .
+                       ?ProductionResource DMP:maxDiameterHoleResource ?maxDiameterHoleResource .
+                       ?ProductionResource DMP:minDepth ?minDepth .
+                       ?ProductionResource DMP:maxDepth ?maxDepth .
+                       ?ProductionResource DMP:minThickness ?minThickness .
+                       ?ProductionResource DMP:maxThickness ?maxThickness .
+                       FILTER (?Service = DMP:DrillingService && ?TypeOfMaterial = DMP:""" + TypeOfMaterial + """ &&
+                               ?minDiameterHoleResource <= """ + str(DiameterHoleResource) + """ &&
+                               ?maxDiameterHoleResource >= """ + str(DiameterHoleResource) + """ &&
+                               ?minDepth <= """ + str(Depth) + """ &&
+                               ?maxDepth >= """ + str(Depth) + """ &&
+                               ?minThickness <= """ + str(Thickness) + """ &&
+                               ?maxThickness >= """ + str(Thickness) + """)
+                       }"""
+
+        elif Schritt["ProductionService"] == "MillingService":
+            TypeOfMaterial = Schritt["TypeOfMaterial"]
+            Lenght = Schritt["Dimensionen"]["LengthResource"]
+            Width = Schritt["Dimensionen"]["WidthResource"]
+            Depth = Schritt["Dimensionen"]["Depth"]
+            Thickness = Schritt["Dimensionen"]["Thickness"]
+            Where = """WHERE {
+                       ?ProductionResource DMP:offersProductionService ?Service .
+                       ?ProductionResource DMP:processToM ?TypeOfMaterial .
+                       ?ProductionResource DMP:minLengthResource ?minLengthResource .
+                       ?ProductionResource DMP:maxLengthResource ?maxLengthResource .
+                       ?ProductionResource DMP:minLengthResource ?minLengthResource .
+                       ?ProductionResource DMP:maxWidthResource ?maxWidthResource .
+                       ?ProductionResource DMP:minDepth ?minDepth .
+                       ?ProductionResource DMP:maxDepth ?maxDepth .
+                       ?ProductionResource DMP:minThickness ?minThickness .
+                       ?ProductionResource DMP:maxThickness ?maxThickness .
+                       FILTER (?Service = DMP:MillingService || ?TypeOfMaterial = DMP:""" + TypeOfMaterial + """ &&
+                               (?minLengthResource <= """ + str(Lenght) + """ &&
+                               ?maxLengthResource >= """ + str(Lenght) + """ &&
+                               ?minWidthResource <= """ + str(Width) + """ &&
+                               ?maxWidthResource >= """ + str(Width) + """) ||
+                               (?minLengthResource <= """ + str(Width) + """ &&
+                               ?maxLengthResource >= """ + str(Width) + """ &&
+                               ?minWidthResource <= """ + str(Lenght) + """ &&
+                               ?maxWidthResource >= """ + str(Lenght) + """) &&
+                               ?minDepth <= """ + str(Depth) + """ &&
+                               ?maxDepth >= """ + str(Depth) + """ &&
+                               ?minThickness <= """ + str(Thickness) + """ &&
+                               ?maxThickness >= """ + str(Thickness) + """)
+                       }"""
+        else:
+            pass
+        ListeHersteller = Ontologie_Client.Abfrage(Select, Where)
+        Hersteller = []
+        for DT in ListeHersteller:
+            Twin = getTwin(DT)
+            if DT != None:
+                Hersteller.append(Twin)
+
+        Hersteller_Listen[item] = Hersteller
 
     Anfrager = getTwin(Nachricht["Name"])
     if Anfrager is not None:
-        if Hersteller is not []:
-            Anfrager.Q.put(Hersteller)
+        Anfrager.Q.put(Hersteller_Listen)
 
 
 def DT_nach_Typ_erstellen(Nachricht):

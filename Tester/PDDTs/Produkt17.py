@@ -13,12 +13,16 @@ _timeout = 60
 
 """PT-Name wird der Variablen Maschinenname und Typ zugewiesen. Variable Typ bestimmt welche Art von DT angelegt wird.
 Fähigkeit nur für ADTs ausfüllen und Bedarf nur für PDDTs ausfüllen."""
-Maschinenname = "Tester_PDDT"
+Maschinenname = "Produkt17"
 MaschinenTyp = "PDDT"
-Bedarf = json.dumps({"ProductionService": "DrillingService", "processToM": "Metal", "Geometrie": "Kreis",
-                     "Dimensionen": {"DiameterHoleResource": 15.0, "Depth": 30.0, "Thickness": 55.0}})
+#Bedarf = json.dumps({"ProductionService": "DrillingService", "processToM": "Metal", "Geometrie": "Kreis",
+#                     "Dimensionen": {"DiameterHoleResource": 15.0, "Depth": 30.0, "Thickness": 55.0}})
+Bedarf = json.dumps({"Schritt 1": {"ProductionService": "DrillingService", "TypeOfMaterial": "Metal", "Geometrie": "Kreis",
+                     "Dimensionen": {"DiameterHoleResource": 15.0, "Depth": 30.0, "Thickness": 55.0}},
+                     "Schritt 2": {"ProductionService": "MillingService", "TypeOfMaterial": "Metal", "Geometrie": "Rechteck",
+                                   "Dimensionen": {"LengthResource": 15.0, "WidthResource": 5.0,
+                                                   "Depth": 30.0, "Thickness": 55.0}}})
 Bedarf = json.loads(Bedarf)
-
 
 """Alle benötigten Topics werden hier definiert"""
 topic = "Laufzeitumgebung/" + Maschinenname + "/#"

@@ -4,7 +4,8 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 '''https://rebeccabilbro.github.io/sparql-from-python/'''
 
 # Specify the fuseki endpoint
-sparql = SPARQLWrapper("http://twinserver.kve.hs-mannheim.de:38443/DMP#")
+#sparql = SPARQLWrapper("http://twinserver.kve.hs-mannheim.de:38443/DMP#")
+sparql = SPARQLWrapper("http://127.0.0.1:3030/DMP")
 
 # Query
 sparql.setQuery("""

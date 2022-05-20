@@ -1,0 +1,53 @@
+{
+    "Name": "DrillingMachine17",
+    "Task": "Erstelle DT",
+    "Typ": "ADT",
+    "Sensoren": [
+        "S1",
+        "S2",
+        "S3",
+        "S4"
+    ],
+    "Kritische Werte": {
+        "S1": 30,
+        "S2": 50,
+        "S3": 25,
+        "S4": 17
+    },
+    "Operatoren": {
+        "S1": ">",
+        "S2": "<",
+        "S3": "<",
+        "S4": ">"
+    },
+    "Handlungen": {
+        "S1": "Kraft erhoehen",
+        "S2": "Kühlmittel aktivieren",
+        "S3": "Gewicht erhöhen",
+        "S4": "Backrate steigern"
+    },
+    "Skill": {
+        "offersProductionService": "DrillingService",
+        "TypeOfMaterial": "Metal",
+        "Geometrie": "Kreis",
+        "Dimensionen": {
+            "minDiameterHoleResource": 5.0,
+            "maxDiameterHoleResource": 20.0,
+            "minDepth": 5.0,
+            "maxDepth": 100.0,
+            "minThickness": 5.0,
+            "maxThickness": 200.0
+        }
+    },
+    "Preise": {
+        "priceFunction": "linear",
+        "Steigung": 100.0,
+        "Abschnitt": 100.0
+    },
+    "Zeiten": {
+        "timeFunction": "linear",
+        "Steigung": 100.0,
+        "Abschnitt": 100.0
+    },
+    "Fehlerquote": 0.1
+}

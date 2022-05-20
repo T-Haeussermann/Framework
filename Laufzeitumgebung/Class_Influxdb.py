@@ -55,19 +55,23 @@ class Influxdb:
 
         else:
             query = '''from(bucket: "''' + Name + '''")
-                |> range(start: -1000h)
+                |> range(start: -1h)
                 |> filter(fn: (r) => r["_measurement"] == "Messwerte")
                 |> filter(fn: (r) => r["Sensor"] == "''' + Sensor + '''")
                 |> last()'''
 
             tables = self.dbclient.query_api().query(query, org=org)
-
-            for table in tables:
-                for record in table.records:
-                    Sensor = record["Sensor"]
-                    Messwert = record["_value"]
-                    Einheit = record["_field"]
-                    Antwort = json.dumps({"Sensor": Sensor, "Messwert": Messwert, "Einheit": Einheit})
-                    Antwort = json.loads(Antwort)
-
-            return Antwort
+            if tables !=0:
+                for table in tables:
+                    for record in table.records:
+                        Sensor = record["Sensor"]
+                        Messwert = record["_value"]
+                        Einheit = record["_field"]
+                        if Messwert != None:
+                            Antwort = json.dumps({"Sensor": Sensor, "Messwert": Messwert, "Einheit": Einheit})
+                        else:
+                            Antwort = json.dumps({"Sensor": Sensor, "Messwert": "-", "Einheit": Einheit})
+                        Antwort = json.loads(Antwort)
+                    return Antwort
+            else:
+                return None

@@ -2,6 +2,7 @@ import time
 from queue import Queue
 import json
 from influxdb_client import Point
+import math
 
 '''Achtung nur Json Versenden sonst kommt es zu Fehlern in der Laufumgebung'''
 
@@ -49,15 +50,26 @@ class Asset_Digital_Twin(Digital_Twin):
     def Ich_bin(self):
         Sensorwerte = {}
         for Sensor in self.Sensoren:
-
-            WertUndEinheit = {
-                "Wert": self.DB_Client.Query(self.Name, Sensor)["Messwert"],
-                "Einheit": self.DB_Client.Query(self.Name, Sensor)["Einheit"],
-                "Kritischer Wert": self.KritWerte[Sensor],
-                "Operator": self.Operatoren[Sensor],
-                "Handlung": self.Handlungen[Sensor]
-            }
-            Sensorwerte[Sensor] = WertUndEinheit
+            Abfrage = self.DB_Client.Query(self.Name, Sensor)
+            '''Error Handling, falls noch keine Messwerte existieren'''
+            if Abfrage != None:
+                WertUndEinheit = {
+                    "Wert": Abfrage["Messwert"],
+                    "Einheit": Abfrage["Einheit"],
+                    "Kritischer Wert": self.KritWerte[Sensor],
+                    "Operator": self.Operatoren[Sensor],
+                    "Handlung": self.Handlungen[Sensor]
+                }
+                Sensorwerte[Sensor] = WertUndEinheit
+            else:
+                WertUndEinheit = {
+                    "Wert": "?",
+                    "Einheit": "?",
+                    "Kritischer Wert": self.KritWerte[Sensor],
+                    "Operator": self.Operatoren[Sensor],
+                    "Handlung": self.Handlungen[Sensor]
+                }
+                Sensorwerte[Sensor] = WertUndEinheit
         '''Sensorwerte, Kritische Werte, Operatoren und Handlungen getrennt'''
         # Ich_bin = json.dumps({"Name": self.Name, "Typ": self.Typ, "Fähigkeit": self.Fähigkeit, "Sensoren": Sensorwerte,
         #                       "Kritische Werte": self.KritWerte, "Operatoren": self.Operatoren,
@@ -75,7 +87,7 @@ class Asset_Digital_Twin(Digital_Twin):
         '''ADT auf dem Ontologie-Server anlegen'''
         Ich_bin = self.Ich_bin()
         offersProductionService = Ich_bin["Fähigkeit"]["offersProductionService"]
-        processToM = Ich_bin["Fähigkeit"]["processToM"]
+        TypeOfMaterial = Ich_bin["Fähigkeit"]["TypeOfMaterial"]
         Fehlerquote = Ich_bin["Fehlerquote"]
 
         Dimensionen = ""
@@ -106,12 +118,12 @@ class Asset_Digital_Twin(Digital_Twin):
                          "DMP:" + self.Name + " DMP:" + item + " " + "\"" + \
                          str(Ich_bin["Zeiten"][item]) + "\"^^xsd:string .\n"
 
-        if self.Ontologie_Client.Existiert(self.Name, offersProductionService, processToM)["boolean"] == False:
+        if self.Ontologie_Client.Existiert(self.Name, offersProductionService, TypeOfMaterial)["boolean"] == False:
             Insert = """INSERT DATA {
                 DMP:""" + self.Name + """ rdf:type owl:NamedIndividual ,
                 DMP:Resource .
                 DMP:""" + self.Name + """ DMP:offersProductionService DMP:""" + offersProductionService + """ .\n
-                DMP:""" + self.Name + """ DMP:processToM DMP:""" + processToM + """ .\n""" + Dimensionen +\
+                DMP:""" + self.Name + """ DMP:processToM DMP:""" + TypeOfMaterial + """ .\n""" + Dimensionen +\
                 Preise + Zeiten + """
                 DMP:""" + self.Name + """ DMP:Fehlerquote DMP:""" + str(Fehlerquote) + """
             }"""
@@ -171,40 +183,67 @@ class Product_Demand_Digital_Twin(Digital_Twin):
         return Ich_bin
 
     def PDDT_Ablauf(self):
-        self.Broker_2.publish(self.Topic + "/Bedarf", json.dumps({"Name": self.Name, "Bedarf": self.Bedarf}))
+        self.Broker_2.publish(self.Topic + "/Bedarf", json.dumps({"Name": self.Name, "Bedarf": self.Bedarf}), Qos=2)
         while True:
             Nachricht = self.Q.get()
             '''Ermittelt, wer der Beste ist'''
             Liste_Hersteller = {}
+            Güte_Hersteller = {}
             if Nachricht != "Kill":
-                for DT in Nachricht:
-                    Twin = DT.Ich_bin()
-                    TwinName = Twin["Name"]
-                    Kriterien = json.dumps({"Preise": Twin["Preise"], "Zeiten": Twin["Zeiten"],
-                                                            "Fehlerquote": Twin["Fehlerquote"]})
-                    Liste_Hersteller[TwinName] = json.loads(Kriterien)
+                for item in Nachricht:
+                    Kriterien_Liste = {}
+                    Liste = Nachricht[item]
+                    if Liste == []:
+                        time.sleep(10)
+                        self.Broker_2.publish(self.Topic + "/Bedarf",
+                                              json.dumps({"Name": self.Name, "Bedarf": self.Bedarf}), Qos=2)
+                        continue
 
+                    for DT in Liste:
+                        Twin = DT.Ich_bin()
+                        TwinName = Twin["Name"]
 
-                for DT in Liste_Hersteller:
-                    print(Liste_Hersteller[DT])
-                    if Liste_Hersteller[DT]["Preise"]["priceFunction"] == "linear":
-                        minZerspanvolumen = Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["minDiameterHoleResource"] *\
-                                            Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["minDiameterHoleResource"] *\
-                                            Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["minDepth"]
-                        maxZerspanvolumen = Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["maxDiameterHoleResource"] *\
-                                            Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["maxDiameterHoleResource"] *\
-                                            Liste_Hersteller[DT]["Fähigkeit"]["Dimensionen"]["maxDepth"]
-                        Steigung = (Liste_Hersteller[DT]["maxPrice"]-DT["minPrice"])/(maxZerspanvolumen-minZerspanvolumen)
-                        Abschnitt = Liste_Hersteller[DT]["Preise"]["minPrice"] - minZerspanvolumen * Steigung
-                        Preis = (self.Bedarf["Dimensionen"]["DiameterHoleResource"] *\
-                                self.Bedarf["Dimensionen"]["Depth"] *\
-                                self.Bedarf["Dimensionen"]["DiameterHoleResource"]) * Steigung + Abschnitt
-                        print(Preis)
+                        for Schritt in self.Bedarf:
+                            Bedarf = self.Bedarf[Schritt]
+                            if Bedarf["ProductionService"] == "DrillingService":
+                                Zerspanungvolumen = (Bedarf["Dimensionen"]["DiameterHoleResource"] *\
+                                                     Bedarf["Dimensionen"]["DiameterHoleResource"] *\
+                                                     Bedarf["Dimensionen"]["Depth"])
+                                Bezugsgröße = Zerspanungvolumen
+                            elif Bedarf["ProductionService"] == "MillingService":
+                                Zerspanungvolumen = (Bedarf["Dimensionen"]["LengthResource"] *\
+                                                     Bedarf["Dimensionen"]["WidthResource"] *\
+                                                     Bedarf["Dimensionen"]["Depth"])
+                                Bezugsgröße = Zerspanungvolumen
 
-                # for DT in Liste_Hersteller:
-                #     Güte = Liste_Hersteller[DT][0] + Liste_Hersteller[DT][1] + 2 * Liste_Hersteller[DT][2]
-                #     Liste_Hersteller[DT] = Güte
+                        '''Preis für das oben berechnete Zerspanungsvolumen berechnen'''
+                        if Twin["Preise"]["priceFunction"] == "linear":
+                            Preis = Twin["Preise"]["Steigung"] * Bezugsgröße + Twin["Preise"]["Abschnitt"]
 
+                        elif Twin["Preise"]["priceFunction"] == "exponentiell":
+                            Preis = math.exp(Twin["Preise"]["Exponent"]) * Bezugsgröße + Twin["Preise"]["Abschnitt"]
+
+                        '''Zeit für das oben berechnete Zerspanungsvolumen berechnen'''
+                        if Twin["Zeiten"]["timeFunction"] == "linear":
+                            Zeiten = Twin["Zeiten"]["Steigung"] * Bezugsgröße + Twin["Zeiten"]["Abschnitt"]
+
+                        elif Twin["Zeiten"]["timeFunction"] == "exponentiell":
+                            Zeiten = math.exp(Twin["Zeiten"]["Exponent"]) * Bezugsgröße + Twin["Zeiten"]["Abschnitt"]
+
+                        Fehlerquote = Twin["Fehlerquote"]
+
+                        Kriterien = json.dumps({"Preis": Preis, "Zeit": Zeiten, "Fehlerquote": Fehlerquote})
+                        '''JSON der Hersteller Erstellen, mit den Werten für Preis, Zeit und Fehlerquote'''
+                        Kriterien_Liste[TwinName] = json.loads(Kriterien)
+                    Liste_Hersteller[item] = Kriterien_Liste
+
+                for Schritt in Liste_Hersteller:
+                    for DT in Liste_Hersteller[Schritt]:
+                        Güte = Liste_Hersteller[Schritt][DT]["Preis"] + Liste_Hersteller[Schritt][DT]["Zeit"] *\
+                               (1 + Liste_Hersteller[Schritt][DT]["Fehlerquote"])
+                        Güte_Hersteller[DT] = Güte
+                print(Liste_Hersteller)
+                print(Liste_Hersteller["Schritt 2"])
                 # '''https://stackoverflow.com/questions/3282823/get-the-key-corresponding-to-the-minimum-value-within-a-dictionary'''
                 # MinWert = min(Liste_Hersteller.values())
                 # MinHersteller = [k for k, v in Liste_Hersteller.items() if v == MinWert]
