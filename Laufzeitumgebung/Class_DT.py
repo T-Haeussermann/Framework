@@ -238,21 +238,27 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                     Liste_Hersteller[item] = Kriterien_Liste
 
                 for Schritt in Liste_Hersteller:
+                    Güte_Liste = {}
                     for DT in Liste_Hersteller[Schritt]:
                         Güte = Liste_Hersteller[Schritt][DT]["Preis"] + Liste_Hersteller[Schritt][DT]["Zeit"] *\
                                (1 + Liste_Hersteller[Schritt][DT]["Fehlerquote"])
-                        Güte_Hersteller[DT] = Güte
-                print(Liste_Hersteller)
-                print(Liste_Hersteller["Schritt 2"])
-                # '''https://stackoverflow.com/questions/3282823/get-the-key-corresponding-to-the-minimum-value-within-a-dictionary'''
-                # MinWert = min(Liste_Hersteller.values())
-                # MinHersteller = [k for k, v in Liste_Hersteller.items() if v == MinWert]
-                #
-                # '''Wenn mehrere DTs den gleichen Wert haben, nimm den ersten'''
-                # Hersteller = MinHersteller[0]
-                # self.Broker_2.publish(self.Topic + "/Herstellen", json.dumps({"Auftraggeber": self.Name,
-                #                                                                "Hersteller": Hersteller,
-                #                                                                "Bedarf": self.Bedarf}))
+                        Güte_Liste[DT] = Güte
+                        Güte_Hersteller[Schritt] = Güte_Liste
+
+
+                '''Hersteller mit für jeden Schritt mit minimalen Kriterien auswählen'''
+                Hersteller = {}
+                for Schritt in Güte_Hersteller:
+                    MinWert = min(Güte_Hersteller[Schritt], key=Güte_Hersteller[Schritt].get)
+                    Hersteller[Schritt] = MinWert
+
+                '''Auftrag für jeden Hersteller versenden'''
+                for DT in Hersteller:
+                    print(DT)
+                    HK = Hersteller[DT]
+                    self.Broker_2.publish(self.Topic + "/Herstellen/" + DT,
+                                          json.dumps({"Auftraggeber": self.Name, "Hersteller": HK,
+                                                      "Bedarf": self.Bedarf[DT]}))
 
             if Nachricht == "Kill":
                 break
