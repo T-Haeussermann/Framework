@@ -28,10 +28,10 @@ Skill = json.loads(Skill)
 
 
 '''Entscheidungsvariablen für die Vergabe von Aufträgen'''
-Preise = json.dumps({"priceFunction": "linear", "Steigung": 50.0, "Abschnitt": 50.0})
+Preise = json.dumps({"priceFunction": "linear", "Steigung": 3.0, "Abschnitt": 50.0})
 Preise = json.loads(Preise)
 
-Zeiten = json.dumps({"timeFunction": "linear", "Steigung": 20.0, "Abschnitt": 20.0})
+Zeiten = json.dumps({"timeFunction": "linear", "Steigung": 3.0, "Abschnitt": 20.0})
 Zeiten = json.loads(Zeiten)
 
 Fehlerquote = 0.2

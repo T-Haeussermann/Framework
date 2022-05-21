@@ -125,7 +125,7 @@ class Asset_Digital_Twin(Digital_Twin):
                 DMP:""" + self.Name + """ DMP:offersProductionService DMP:""" + offersProductionService + """ .\n
                 DMP:""" + self.Name + """ DMP:processToM DMP:""" + TypeOfMaterial + """ .\n""" + Dimensionen +\
                 Preise + Zeiten + """
-                DMP:""" + self.Name + """ DMP:Fehlerquote DMP:""" + str(Fehlerquote) + """
+                DMP:""" + self.Name + """ DMP:Fehlerquote \"^^""" + str(Fehlerquote) + """\"^^xsd:decimal
             }"""
             self.Ontologie_Client.Anlegen(Insert)
 
@@ -202,33 +202,41 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                     for DT in Liste:
                         Twin = DT.Ich_bin()
                         TwinName = Twin["Name"]
-
+                        print(Twin["Preise"]["priceFunction"] + " " + TwinName)
                         for Schritt in self.Bedarf:
                             Bedarf = self.Bedarf[Schritt]
                             if Bedarf["ProductionService"] == "DrillingService":
                                 Zerspanungvolumen = (Bedarf["Dimensionen"]["DiameterHoleResource"] *\
                                                      Bedarf["Dimensionen"]["DiameterHoleResource"] *\
                                                      Bedarf["Dimensionen"]["Depth"])
-                                Bezugsgröße = Zerspanungvolumen
+                                Bezugsgroeße = Zerspanungvolumen
                             elif Bedarf["ProductionService"] == "MillingService":
                                 Zerspanungvolumen = (Bedarf["Dimensionen"]["LengthResource"] *\
                                                      Bedarf["Dimensionen"]["WidthResource"] *\
                                                      Bedarf["Dimensionen"]["Depth"])
-                                Bezugsgröße = Zerspanungvolumen
+                                Bezugsgroeße = Zerspanungvolumen
+
+                            elif Bedarf["ProductionService"] == "StampingService":
+                                Flaeche = (Bedarf["Dimensionen"]["LengthResource"] * Bedarf["Dimensionen"]["WidthResource"])
+                                Bezugsgroeße = Flaeche
+
+                            elif Bedarf["ProductionService"] == "WeldingService":
+                                Laenge = (Bedarf["Dimensionen"]["LengthResource"] * Bedarf["Dimensionen"]["WidthResource"])
+                                Bezugsgroeße = Laenge
 
                         '''Preis für das oben berechnete Zerspanungsvolumen berechnen'''
                         if Twin["Preise"]["priceFunction"] == "linear":
-                            Preis = Twin["Preise"]["Steigung"] * Bezugsgröße + Twin["Preise"]["Abschnitt"]
+                            Preis = Twin["Preise"]["Steigung"] * Bezugsgroeße + Twin["Preise"]["Abschnitt"]
 
                         elif Twin["Preise"]["priceFunction"] == "exponentiell":
-                            Preis = math.exp(Twin["Preise"]["Exponent"]) * Bezugsgröße + Twin["Preise"]["Abschnitt"]
+                            Preis = math.exp(Twin["Preise"]["Exponent"]) * Bezugsgroeße + Twin["Preise"]["Abschnitt"]
 
                         '''Zeit für das oben berechnete Zerspanungsvolumen berechnen'''
                         if Twin["Zeiten"]["timeFunction"] == "linear":
-                            Zeiten = Twin["Zeiten"]["Steigung"] * Bezugsgröße + Twin["Zeiten"]["Abschnitt"]
+                            Zeiten = Twin["Zeiten"]["Steigung"] * Bezugsgroeße + Twin["Zeiten"]["Abschnitt"]
 
                         elif Twin["Zeiten"]["timeFunction"] == "exponentiell":
-                            Zeiten = math.exp(Twin["Zeiten"]["Exponent"]) * Bezugsgröße + Twin["Zeiten"]["Abschnitt"]
+                            Zeiten = math.exp(Twin["Zeiten"]["Exponent"]) * Bezugsgroeße + Twin["Zeiten"]["Abschnitt"]
 
                         Fehlerquote = Twin["Fehlerquote"]
 
@@ -236,7 +244,7 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                         '''JSON der Hersteller Erstellen, mit den Werten für Preis, Zeit und Fehlerquote'''
                         Kriterien_Liste[TwinName] = json.loads(Kriterien)
                     Liste_Hersteller[item] = Kriterien_Liste
-
+                print(Liste_Hersteller)
                 for Schritt in Liste_Hersteller:
                     Güte_Liste = {}
                     for DT in Liste_Hersteller[Schritt]:

@@ -88,7 +88,6 @@ def Abfrage_Ontologie_Server(Topic, Nachricht):
     Select = """SELECT ?ProductionResource"""
     for item in Nachricht["Bedarf"]:
         Schritt = Nachricht["Bedarf"][item]
-
         if Schritt["ProductionService"] == "DrillingService":
             TypeOfMaterial = Schritt["TypeOfMaterial"]
             DiameterHoleResource = Schritt["Dimensionen"]["DiameterHoleResource"]
@@ -123,28 +122,69 @@ def Abfrage_Ontologie_Server(Topic, Nachricht):
                        ?ProductionResource DMP:processToM ?TypeOfMaterial .
                        ?ProductionResource DMP:minLengthResource ?minLengthResource .
                        ?ProductionResource DMP:maxLengthResource ?maxLengthResource .
-                       ?ProductionResource DMP:minLengthResource ?minLengthResource .
+                       ?ProductionResource DMP:minLengthResource ?minWidthResource .
                        ?ProductionResource DMP:maxWidthResource ?maxWidthResource .
                        ?ProductionResource DMP:minDepth ?minDepth .
                        ?ProductionResource DMP:maxDepth ?maxDepth .
                        ?ProductionResource DMP:minThickness ?minThickness .
                        ?ProductionResource DMP:maxThickness ?maxThickness .
-                       FILTER (?Service = DMP:MillingService || ?TypeOfMaterial = DMP:""" + TypeOfMaterial + """ &&
-                               (?minLengthResource <= """ + str(Lenght) + """ &&
+                       FILTER (?Service = DMP:MillingService && ?TypeOfMaterial = DMP:""" + TypeOfMaterial + """ &&
+                               ?minLengthResource <= """ + str(Lenght) + """ &&
                                ?maxLengthResource >= """ + str(Lenght) + """ &&
                                ?minWidthResource <= """ + str(Width) + """ &&
-                               ?maxWidthResource >= """ + str(Width) + """) ||
-                               (?minLengthResource <= """ + str(Width) + """ &&
-                               ?maxLengthResource >= """ + str(Width) + """ &&
-                               ?minWidthResource <= """ + str(Lenght) + """ &&
-                               ?maxWidthResource >= """ + str(Lenght) + """) &&
+                               ?maxWidthResource >= """ + str(Width) + """ &&
                                ?minDepth <= """ + str(Depth) + """ &&
                                ?maxDepth >= """ + str(Depth) + """ &&
                                ?minThickness <= """ + str(Thickness) + """ &&
                                ?maxThickness >= """ + str(Thickness) + """)
                        }"""
-        else:
-            pass
+
+        elif Schritt["ProductionService"] == "StampingService":
+            TypeOfMaterial = Schritt["TypeOfMaterial"]
+            Lenght = Schritt["Dimensionen"]["LengthResource"]
+            Width = Schritt["Dimensionen"]["WidthResource"]
+            Depth = Schritt["Dimensionen"]["Depth"]
+            Thickness = Schritt["Dimensionen"]["Thickness"]
+            Where = """WHERE {
+                       ?ProductionResource DMP:offersProductionService ?Service .
+                       ?ProductionResource DMP:processToM ?TypeOfMaterial .
+                       ?ProductionResource DMP:minLengthResource ?minLengthResource .
+                       ?ProductionResource DMP:maxLengthResource ?maxLengthResource .
+                       ?ProductionResource DMP:minLengthResource ?minWidthResource .
+                       ?ProductionResource DMP:maxWidthResource ?maxWidthResource .
+                       ?ProductionResource DMP:minDepth ?minDepth .
+                       ?ProductionResource DMP:maxDepth ?maxDepth .
+                       ?ProductionResource DMP:minThickness ?minThickness .
+                       ?ProductionResource DMP:maxThickness ?maxThickness .
+                       FILTER (?Service = DMP:StampingService && ?TypeOfMaterial = DMP:""" + TypeOfMaterial + """ &&
+                               ?minLengthResource <= """ + str(Lenght) + """ &&
+                               ?maxLengthResource >= """ + str(Lenght) + """ &&
+                               ?minWidthResource <= """ + str(Width) + """ &&
+                               ?maxWidthResource >= """ + str(Width) + """ &&
+                               ?minDepth <= """ + str(Depth) + """ &&
+                               ?maxDepth >= """ + str(Depth) + """ &&
+                               ?minThickness <= """ + str(Thickness) + """ &&
+                               ?maxThickness >= """ + str(Thickness) + """)
+                       }"""
+
+        elif Schritt["ProductionService"] == "WeldingService":
+            TypeOfMaterial = Schritt["TypeOfMaterial"]
+            Lenght = Schritt["Dimensionen"]["LengthResource"]
+            Thickness = Schritt["Dimensionen"]["Thickness"]
+            Where = """WHERE {
+                           ?ProductionResource DMP:offersProductionService ?Service .
+                           ?ProductionResource DMP:processToM ?TypeOfMaterial .
+                           ?ProductionResource DMP:minLengthResource ?minLengthResource .
+                           ?ProductionResource DMP:maxLengthResource ?maxLengthResource .
+                           ?ProductionResource DMP:minThickness ?minThickness .
+                           ?ProductionResource DMP:maxThickness ?maxThickness .
+                           FILTER (?Service = DMP:WeldingService && ?TypeOfMaterial = DMP:""" + TypeOfMaterial + """ &&
+                                   ?minLengthResource <= """ + str(Lenght) + """ &&
+                                   ?maxLengthResource >= """ + str(Lenght) + """ &&
+                                   ?minThickness <= """ + str(Thickness) + """ &&
+                                   ?maxThickness >= """ + str(Thickness) + """)}"""
+
+
         ListeHersteller = Ontologie_Client.Abfrage(Select, Where)
         Hersteller = []
         for DT in ListeHersteller:

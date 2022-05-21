@@ -21,7 +21,7 @@ KritWerte = {"S1": 30, "S2": 50, "S3": 25, "S4":17}
 Operatoren = {"S1": ">", "S2": "<", "S3": "<", "S4":">"}
 Handlungen = {"S1": "Kraft erhoehen", "S2": "Kühlmittel aktivieren", "S3": "Gewicht erhöhen", "S4": "Backrate steigern"}
 Skill = json.dumps({"offersProductionService": "MillingService", "TypeOfMaterial": "Metal",
-                    "Geometrie": "Kreis",
+                    "Geometrie": "Rechteck",
                     "Dimensionen": {"minLengthResource": 5.0, "maxLengthResource": 500.0,
                                     "minWidthResource": 5.0, "maxWidthResource": 200.0,
                                     "minDepth": 5.0, "maxDepth": 100.0, "minThickness": 5.0, "maxThickness": 200.0}})
@@ -29,10 +29,10 @@ Skill = json.loads(Skill)
 
 
 '''Entscheidungsvariablen für die Vergabe von Aufträgen'''
-Preise = json.dumps({"priceFunction": "exponentiell", "Exponent": 50.0, "Abschnitt": 50.0})
+Preise = json.dumps({"priceFunction": "exponentiell", "Exponent": 1.0, "Abschnitt": 50.0})
 Preise = json.loads(Preise)
 
-Zeiten = json.dumps({"timeFunction": "exponentiell", "Exponent": 20.0, "Abschnitt": 20.0})
+Zeiten = json.dumps({"timeFunction": "exponentiell", "Exponent": 0.5, "Abschnitt": 20.0})
 Zeiten = json.loads(Zeiten)
 
 Fehlerquote = 0.1

@@ -29,7 +29,6 @@ class Ontologie:
 
     def Abfrage(self, Select, Where):
         self.sparql.setQuery(self.Prefix + " " + Select + " " + Where)
-
         # Convert results to JSON format
         self.sparql.setReturnFormat(JSON)
         Result = self.sparql.query().convert()

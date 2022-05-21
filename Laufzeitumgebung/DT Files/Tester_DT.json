@@ -1,8 +1,0 @@
-{
-    "Name": "Tester_DT",
-    "Typ": "DT",
-    "Task": "Erstelle DT",
-    "Kritischer Wert": 50,
-    "Operator": ">",
-    "Handlung": "Kuehlmittel aktivieren"
-}

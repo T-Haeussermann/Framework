@@ -14,13 +14,13 @@ _timeout = 60
 
 """PT-Name wird der Variablen Maschinenname und Typ zugewiesen. Variable Typ bestimmt welche Art von DT angelegt wird.
 Fähigkeit nur für ADTs ausfüllen und Bedarf nur für PDDTs ausfüllen."""
-Maschinenname = "DrillingMachine17"
+Maschinenname = "PunchingMachine17"
 MaschinenTyp = "ADT"
 Sensoren = ["S1", "S2", "S3", "S4"]
 KritWerte = {"S1": 30, "S2": 50, "S3": 25, "S4":17}
 Operatoren = {"S1": ">", "S2": "<", "S3": "<", "S4":">"}
 Handlungen = {"S1": "Kraft erhoehen", "S2": "Kühlmittel aktivieren", "S3": "Gewicht erhöhen", "S4": "Backrate steigern"}
-Skill = json.dumps({"offersProductionService": "DrillingService", "TypeOfMaterial": "Metal",
+Skill = json.dumps({"offersProductionService": "DrillingService", "TypeOfMaterial": "Plastics",
                     "Geometrie": "Kreis",
                     "Dimensionen": {"minDiameterHoleResource": 5.0, "maxDiameterHoleResource": 20.0,
                                     "minDepth": 5.0, "maxDepth": 100.0, "minThickness": 5.0, "maxThickness": 200.0}})
@@ -28,10 +28,10 @@ Skill = json.loads(Skill)
 
 
 '''Entscheidungsvariablen für die Vergabe von Aufträgen'''
-Preise = json.dumps({"priceFunction": "linear", "Steigung": 4.0, "Abschnitt": 100.0})
+Preise = json.dumps({"priceFunction": "linear", "Steigung": 2.0, "Abschnitt": 100.0})
 Preise = json.loads(Preise)
 
-Zeiten = json.dumps({"timeFunction": "linear", "Steigung": 4.0, "Abschnitt": 100.0})
+Zeiten = json.dumps({"timeFunction": "linear", "Steigung": 2.0, "Abschnitt": 100.0})
 Zeiten = json.loads(Zeiten)
 
 Fehlerquote = 0.1
