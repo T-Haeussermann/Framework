@@ -13,3 +13,7 @@ if Preis["priceFunction"] == "linear":
 elif Preis["priceFunction"] == "exponentiell":
     P = math.exp(Preis["Exponent"]) * Volumen + 100
 print(P)
+
+t = json.dumps({"Bedarf": {"Schritt 1": {"ProductionService": "DrillingService", "TypeOfMaterial": "Metal", "Geometrie": "Kreis", "Dimensionen": {"DiameterHoleResource": 15.0, "Depth": 30.0, "Thickness": 55.0}}}})
+t = json.loads(t)
+print(t)

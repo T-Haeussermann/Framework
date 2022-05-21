@@ -332,13 +332,19 @@ async def Twins(Name, Attribut1=None, Attribut2 =None, Attribut3=None, Attribut4
                                 Twin = Twin.Ich_bin()[Attribut1][Attribut2][Attribut3][Attribut4][Attribut5]
                                 return Twin
 
-'''Erstellt einen DT vom Typ PDDT Test URL: http://127.0.0.1:7000/PDDT/Tester_PDDT/ST%2037/Tasche/Kreis/20/20/20'''
-@App.put("/PDDT/{Name}/{Material}/{Art}/{Geometrie}/{Dimension_X}/{Dimension_Y}/{Dimension_Z}")
-async def PDDT_Erstellen(Name, Material, Art, Geometrie, Dimension_X, Dimension_Y, Dimension_Z):
-    Nachricht = json.dumps({"Name": Name, "Typ": "PDDT", "Task": "Erstelle DT", "Bedarf": {
-                "Art": Art, "Material": Material, "Geometrie": Geometrie, "Dimensionen": {
-                "Dimension X": Dimension_X, "Dimension X": Dimension_Y, "Dimension Z": Dimension_Z}}})
+'''Erstellt einen DT vom Typ PDDT Test URL: http://127.0.0.1:7000/PDDT/Test/%7B%22Schritt%201%22%3A%20%7B%22Production
+Service%22%3A%20%22DrillingService%22%2C%20%22TypeOfMaterial%22%3A%20%22Metal%22%2C%20%22Geometrie%22%3A%20%22Kreis%22
+%2C%20%22Dimensionen%22%3A%20%7B%22DiameterHoleResource%22%3A%2015.0%2C%20%22Depth%22%3A%2030.0%2C%20%22Thickness%22%3
+A%2055.0%7D%7D%7D'''
+@App.put("/PDDT/{Name}/{Bedarf}")
+async def PDDT_Erstellen(Name, Bedarf):
+    if Name in ListeDTs:
+        return "DT mit diesem Namen existiert bereits. Bitte einen anderen Namen wählen."
+
+    Bedarf = json.loads(Bedarf)
+    Nachricht = json.dumps({"Name": Name, "Typ": "PDDT", "Task": "Erstelle DT"})
     Nachricht = json.loads(Nachricht)
+    Nachricht["Bedarf"] = Bedarf
     DT_nach_Typ_erstellen(Nachricht)
     return "PDDT wurde erstellt"
 
