@@ -200,9 +200,12 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                         continue
 
                     for DT in Liste:
+                        '''Error Handling, Falls nicht instanziierte DT vom Ontologie-Server kommen leer ist'''
+                        if DT == None:
+                            continue
+
                         Twin = DT.Ich_bin()
                         TwinName = Twin["Name"]
-                        print(Twin["Preise"]["priceFunction"] + " " + TwinName)
                         for Schritt in self.Bedarf:
                             Bedarf = self.Bedarf[Schritt]
                             if Bedarf["ProductionService"] == "DrillingService":
@@ -244,7 +247,7 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                         '''JSON der Hersteller Erstellen, mit den Werten für Preis, Zeit und Fehlerquote'''
                         Kriterien_Liste[TwinName] = json.loads(Kriterien)
                     Liste_Hersteller[item] = Kriterien_Liste
-                print(Liste_Hersteller)
+
                 for Schritt in Liste_Hersteller:
                     Güte_Liste = {}
                     for DT in Liste_Hersteller[Schritt]:
@@ -259,6 +262,7 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                 for Schritt in Güte_Hersteller:
                     MinWert = min(Güte_Hersteller[Schritt], key=Güte_Hersteller[Schritt].get)
                     Hersteller[Schritt] = MinWert
+                print("Für "+ self.Name + " " + str(Hersteller))
 
                 '''Auftrag für jeden Hersteller versenden'''
                 for DT in Hersteller:

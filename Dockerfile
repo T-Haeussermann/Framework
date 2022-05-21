@@ -26,6 +26,7 @@ ADD Laufzeitumgebung .
 ENTRYPOINT ["python"]
 CMD ["Laufzeitumgebung.py"]
 
+#Achtung locale IPs auf host.docker.internal umschreiben
 # get requirements: pip list --format=freeze > requirements.txt
 # venv aktivieren dann: Scripts\activate.bat
 # docker build -t laufzeitumgebung .
