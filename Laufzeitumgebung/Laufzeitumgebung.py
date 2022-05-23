@@ -1,7 +1,5 @@
 import json
 import threading
-import time
-from waiting import wait
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from MQTT import MQTT
 import uvicorn
@@ -15,15 +13,15 @@ import os
 
 
 '''Variablen für MQTT-Broker 1'''
-_username1 = "dbt"
-_passwd1 = "dbt"
-_host1 = "mq.jreichwald.de"
+_username1 = "Framework_Broker1"
+_passwd1 = ""
+_host1 = "192.168.178.70"
 _port1 = 1883
 _timeout1 = 60
 _topic_sub1 = "Laufzeitumgebung/#"
 
 '''Variablen für MQTT-Broker 2'''
-_username2 = ""
+_username2 = "Framework_Broker2"
 _passwd2 = ""
 _host2 = "192.168.178.70"
 _port2 = 1884
@@ -37,7 +35,6 @@ Event = threading.Event()
 url = "192.168.178.70" + ":8086"
 token = "-DnCnjPN_w0JbBzX6cPLMqdoSyJsne31lj4985R88bRj1pCp_Bi_434T5dwHgq1klKGLumx2joHU65P3l1M0cQ=="
 org = "Laufzeitumgebung"
-bucket = "Messwerte"
 
 '''Weitere Variablen'''
 ListeDTs = []
@@ -347,6 +344,41 @@ async def PDDT_Erstellen(Name, Bedarf):
     Nachricht["Bedarf"] = Bedarf
     DT_nach_Typ_erstellen(Nachricht)
     return "PDDT wurde erstellt"
+
+'''Stoppt die Instanz des angegebenen Broker, ändert den Broker und startet die Instanz neu'''
+@App.put("/change/{Broker}/{Username}/{Passwort}/{Host}/{Port}/{Topic}")
+async def change_Broker(Broker, Username, Passwort, Host, Port, Topic):
+    if Broker == "Broker_1":
+        Broker_1.client.loop_stop()
+        Broker_1._username = Username
+        Broker_1._passwd = Passwort
+        Broker_1._host = Host
+        Broker_1._port = int(Port)
+        Broker_1._topic_Sub = Topic
+        Broker_1.run()
+        return "Broker wurde geändert"
+
+    elif Broker == "Broker_2":
+        Broker_2.client.loop_stop()
+        Broker_2.client.loop_stop()
+        Broker_2._username = Username
+        Broker_2._passwd = Passwort
+        Broker_2._host = Host
+        Broker_2._port = int(Port)
+        Broker_2._topic_Sub = Topic
+        Broker_2.run()
+        return "Broker wurde geändert"
+    else:
+        return "Angegebener Broker existiert nicht"
+
+'''Ändert die Datenbank Test URL:http://127.0.0.1:7000/change/DB/192.168.178.70%3A8086/-DnCnjPN_w0JbBzX6cPLMqdoSyJsne31l
+j4985R88bRj1pCp_Bi_434T5dwHgq1klKGLumx2joHU65P3l1M0cQ%3D%3D/Laufzeitumgebung'''
+@App.put("/change/DB/{URL}/{Token}/{Org}")
+async def change_Broker(URL, Token, Org):
+    DB_Client.url = URL
+    DB_Client.token = Token
+    DB_Client.org = Org
+    return "Datenbank wurde geändert"
 
 '''Beendet die Ausführung eines DTs und entfernt sein json file, um einen Neustart zu verhindern'''
 @App.delete("/kill/{Name}")

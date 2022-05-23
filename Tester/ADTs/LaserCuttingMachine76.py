@@ -5,9 +5,9 @@ import time
 import datetime
 
 
-_username = "dbt"
-_passwd = "dbt"
-_host = "mq.jreichwald.de"
+_username = "LaserCuttingMachine76"
+_passwd = ""
+_host = "192.168.178.70"
 _port = 1883
 _timeout = 60
 

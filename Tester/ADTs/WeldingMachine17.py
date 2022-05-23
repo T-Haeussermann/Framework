@@ -5,9 +5,9 @@ import time
 import datetime
 
 
-_username = "dbt"
-_passwd = "dbt"
-_host = "mq.jreichwald.de"
+_username = "WeldingMachine17"
+_passwd = "Framework_Broker1"
+_host = "192.168.178.70"
 _port = 1883
 _timeout = 60
 

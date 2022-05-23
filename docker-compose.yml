@@ -1,8 +1,9 @@
 version: '3.4'
 
 services:
-  docker:
-    image: docker
+  Laufzeitumgebung:
+    image: laufzeitumgebung
+    container_name: Laufzeitumgebung
     build:
       context: .
       dockerfile: ./Dockerfile
@@ -11,10 +12,31 @@ services:
       - 1883
       - 1884
       - 7000
-
     ports:
       - 1883:1883
       - 1884:1884
       - 7000:7000
+
+  Broker_1:
+    image: eclipse-mosquitto
+    container_name: Broker_1
+    volumes:
+      - ./conf/Broker_1/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: always
+
+  Broker_2:
+    image: eclipse-mosquitto
+    container_name: Broker_2
+    volumes:
+      - ./conf/Broker_2/mosquitto.conf:/mosquitto/config/mosquitto.conf
+    restart: always
+
+  Influxdb:
+    image: influxdb
+    container_name: Influxdb
+    restart: always
+    ports:
+      - 8086:8086
+
 
 
