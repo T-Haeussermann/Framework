@@ -160,8 +160,8 @@ class Asset_Digital_Twin(Digital_Twin):
                     pass
 
             elif "Hersteller" in Nachricht:
-                Payload = json.dumps({"Auftraggeber": Nachricht["Auftraggeber"], "Bedarf": Nachricht["Bedarf"],
-                                      "Auftragseingang": time.asctime()})
+                Payload = json.dumps({"Auftraggeber": Nachricht["Auftraggeber"], "Schritt": Nachricht["Schritt"],
+                                      "Bedarf": Nachricht["Bedarf"], "Auftragseingang": time.asctime()})
                 self.Broker_1.publish(self.Topic + "/Fertigung/" + Nachricht["Auftraggeber"], Payload, 2)
 
             elif Nachricht == "Kill":
@@ -268,7 +268,7 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                 for DT in Hersteller:
                     HK = Hersteller[DT]
                     self.Broker_2.publish(self.Topic + "/Herstellen/" + DT,
-                                          json.dumps({"Auftraggeber": self.Name, "Hersteller": HK,
+                                          json.dumps({"Auftraggeber": self.Name, "Hersteller": HK, "Schritt": DT,
                                                       "Bedarf": self.Bedarf[DT]}))
 
             if Nachricht == "Kill":

@@ -15,7 +15,8 @@ import os
 '''Variablen für MQTT-Broker 1'''
 _username1 = "Framework_Broker1"
 _passwd1 = ""
-_host1 = "192.168.178.70"
+#_host1 = "host.docker.internal" #zum Container Erstellen
+_host1 = "127.0.0.1" # Betrieb über die IDE
 _port1 = 1883
 _timeout1 = 60
 _topic_sub1 = "Laufzeitumgebung/#"
@@ -23,7 +24,8 @@ _topic_sub1 = "Laufzeitumgebung/#"
 '''Variablen für MQTT-Broker 2'''
 _username2 = "Framework_Broker2"
 _passwd2 = ""
-_host2 = "192.168.178.70"
+#_host2 = "host.docker.internal" #zum Container Erstellen
+_host2 = "127.0.0.1" # Betrieb über die IDE
 _port2 = 1884
 _timeout2 = 60
 _topic_sub2 = "Laufzeitumgebung/#"
@@ -32,8 +34,10 @@ _topic_sub2 = "Laufzeitumgebung/#"
 Event = threading.Event()
 
 '''Variablen für Influxdb'''
-url = "192.168.178.70" + ":8086"
-token = "-DnCnjPN_w0JbBzX6cPLMqdoSyJsne31lj4985R88bRj1pCp_Bi_434T5dwHgq1klKGLumx2joHU65P3l1M0cQ=="
+#url = "host.docker.internal:" + "8086" #zum Container Erstellen
+url = "127.0.0.1:" + "8086" #zum Container Erstellen
+token = "uO8aNM5-r4unhLY-bfu7q21_lbo4epMzGZjDY_EGo-a5A5taErG9nQA7jxovh2cSh4_NUyixSVJiM-jDEAPfWQ==" #Docker Compose
+#token = "-DnCnjPN_w0JbBzX6cPLMqdoSyJsne31lj4985R88bRj1pCp_Bi_434T5dwHgq1klKGLumx2joHU65P3l1M0cQ==" #Docker Container
 org = "Laufzeitumgebung"
 
 '''Weitere Variablen'''
@@ -346,15 +350,16 @@ async def PDDT_Erstellen(Name, Bedarf):
     return "PDDT wurde erstellt"
 
 '''Stoppt die Instanz des angegebenen Broker, ändert den Broker und startet die Instanz neu'''
-@App.put("/change/{Broker}/{Username}/{Passwort}/{Host}/{Port}/{Topic}")
-async def change_Broker(Broker, Username, Passwort, Host, Port, Topic):
+@App.put("/change/{Broker}/{Username}/{Passwort}/{Host}/{Port}")
+async def change_Broker(Broker, Username, Passwort, Host, Port):
     if Broker == "Broker_1":
+        Broker_1.publish("Laufzeitumgebung/Broker_Change", json.dumps({"Broker": Broker, "Username": Username,
+        "Passwort": Passwort, "Host": Host, "Port": Port}), Qos=2)
         Broker_1.client.loop_stop()
         Broker_1._username = Username
         Broker_1._passwd = Passwort
         Broker_1._host = Host
         Broker_1._port = int(Port)
-        Broker_1._topic_Sub = Topic
         Broker_1.run()
         return "Broker wurde geändert"
 

@@ -1,4 +1,5 @@
 version: '3.4'
+#IP der Broker in Laufzeitumgebung durch Name des Containers ersetzen!
 
 services:
   Laufzeitumgebung:
@@ -13,9 +14,8 @@ services:
       - 1884
       - 7000
     ports:
-      - 1883:1883
-      - 1884:1884
       - 7000:7000
+
 
   Broker_1:
     image: eclipse-mosquitto
@@ -23,6 +23,11 @@ services:
     volumes:
       - ./conf/Broker_1/mosquitto.conf:/mosquitto/config/mosquitto.conf
     restart: always
+    environment:
+      PUID: 1883
+      PGID: 1883
+    ports:
+      - 1883:1883
 
   Broker_2:
     image: eclipse-mosquitto
@@ -30,10 +35,17 @@ services:
     volumes:
       - ./conf/Broker_2/mosquitto.conf:/mosquitto/config/mosquitto.conf
     restart: always
+    environment:
+      PUID: 1884
+      PGID: 1884
+    ports:
+      - 1884:1884
 
   Influxdb:
     image: influxdb
     container_name: Influxdb
+    volumes:
+      - ./conf/Influxdb/influxdb2:/var/lib/influxdb2:rw
     restart: always
     ports:
       - 8086:8086

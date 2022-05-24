@@ -7,7 +7,7 @@ import datetime
 
 _username = "DrillingMachine17"
 _passwd = ""
-_host = "192.168.178.70"
+_host = "127.0.0.1"
 _port = 1883
 _timeout = 60
 
@@ -47,6 +47,7 @@ def on_connect(client, userdata, flags, rc):
     """Verbindung mit dem MQTT-Broker 1 aufbauen"""
     print("Connected with result code " + str(rc))
     client.subscribe("Laufzeitumgebung/" + Maschinenname + "/#")
+    client.subscribe("Laufzeitumgebung/Broker_Change")
 
 
 
@@ -61,8 +62,22 @@ def on_message(client, userdata, msg):
             if Nachricht["Ausführen"] == Handlungen[Sensor]:
                 print("Handlung : " + Handlungen[Sensor] + " eingeleitet")
 
-    if "Fertigung" in Topic:
+    elif "Fertigung" in Topic:
         print("Ich stelle jetzt " + str(Nachricht["Bedarf"]) + " für " + str(Nachricht["Auftraggeber"]) + " her!")
+
+    elif "Broker_Change" in Topic:
+        _username = Nachricht["Username"]
+        _passwd = Nachricht["Passwort"]
+        _host = Nachricht["Host"]
+        _port = int(Nachricht["Port"])
+        client.username_pw_set(_username, _passwd)
+        client.on_connect = on_connect
+        client.on_message = on_message
+        client.connect(_host, _port, _timeout)
+        print("Broker gewechselt!")
+
+
+
 
 
 client = mqtt.Client()

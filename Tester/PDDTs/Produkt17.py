@@ -4,9 +4,9 @@ from random import randrange
 import time
 
 
-_username = "dbt"
-_passwd = "dbt"
-_host = "mq.jreichwald.de"
+_username = "Produkt17"
+_passwd = ""
+_host = "127.0.0.1"
 _port = 1883
 _timeout = 60
 
