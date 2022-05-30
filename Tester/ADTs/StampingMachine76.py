@@ -48,6 +48,7 @@ def on_connect(client, userdata, flags, rc):
     """Verbindung mit dem MQTT-Broker 1 aufbauen"""
     print("Connected with result code " + str(rc))
     client.subscribe("Laufzeitumgebung/" + Maschinenname + "/#")
+    client.subscribe("Laufzeitumgebung/Broker_Change")
 
 
 
@@ -101,5 +102,5 @@ while True:
     client.publish(topicMesswerte + "/S3", Messwert)
     Messwert = json.dumps({"Name": Maschinenname, "Messwert": {"S4": randrange(100), "Einheit": "Käsekuchen"}})
     client.publish(topicMesswerte + "/S4", Messwert)
-    time.sleep(2)
+    time.sleep(10)
 

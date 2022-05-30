@@ -15,11 +15,22 @@ class Influxdb:
         self.token = token
         self. org = org
         self.lock = lock
-        self.dbclient = InfluxDBClient(url=url, token=token, org=org)
-        self.buckets_api = self.dbclient.buckets_api()
+        #self.dbclient = InfluxDBClient(url=self.url, token=self.token, org=self.org)
+        #self.buckets_api = self.dbclient.buckets_api()
         # self.retention_rules = BucketRetentionRules(type="expire", every_seconds=86400) #Bei Bedarf ausfüllen
-        self.write_api = self.dbclient.write_api(write_options=SYNCHRONOUS)
+        #self.write_api = self.dbclient.write_api(write_options=SYNCHRONOUS)
 
+    @property
+    def dbclient(self):
+        return InfluxDBClient(url=self.url, token=self.token, org=self.org)
+
+    @property
+    def buckets_api(self):
+        return self.dbclient.buckets_api()
+
+    @property
+    def write_api(self):
+        return self.dbclient.write_api(write_options=SYNCHRONOUS)
 
     def Schreiben(self, Bucket, Punkt):
         self.lock.acquire()

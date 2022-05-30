@@ -4,8 +4,8 @@ from SPARQLWrapper import SPARQLWrapper, JSON
 '''https://rebeccabilbro.github.io/sparql-from-python/'''
 
 # Specify the fuseki endpoint
-#sparql = SPARQLWrapper("http://twinserver.kve.hs-mannheim.de:38443/DMP#")
-sparql = SPARQLWrapper("http://127.0.0.1:3030/DMP")
+sparql = SPARQLWrapper("http://twinserver.kve.hs-mannheim.de:38443/DMP#")
+#sparql = SPARQLWrapper("http://127.0.0.1:3030/DMP")
 
 # Query
 sparql.setQuery("""
@@ -18,7 +18,7 @@ PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
 DELETE {?ProductionResource ?Service ?Material} 
 WHERE {?ProductionResource ?Service ?Material
-FILTER (?ProductionResource = DMP:Tester_ADT)
+FILTER (?ProductionResource = DMP:MillingMachine17)
 }
 
 """)

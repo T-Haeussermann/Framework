@@ -28,10 +28,10 @@ Skill = json.loads(Skill)
 
 
 '''Entscheidungsvariablen für die Vergabe von Aufträgen'''
-Preise = json.dumps({"priceFunction": "linear", "Steigung": 4.0, "Abschnitt": 100.0})
+Preise = json.dumps({"priceFunction": "linear", "Steigung": 3.0, "Abschnitt": 50.0})
 Preise = json.loads(Preise)
 
-Zeiten = json.dumps({"timeFunction": "linear", "Steigung": 4.0, "Abschnitt": 100.0})
+Zeiten = json.dumps({"timeFunction": "linear", "Steigung": 3.0, "Abschnitt": 20.0})
 Zeiten = json.loads(Zeiten)
 
 Fehlerquote = 0.1
@@ -104,5 +104,5 @@ while True:
     client.publish(topicMesswerte + "/S3", Messwert)
     Messwert = json.dumps({"Name": Maschinenname, "Messwert": {"S4": randrange(100), "Einheit": "Käsekuchen"}})
     client.publish(topicMesswerte + "/S4", Messwert)
-    time.sleep(2)
+    time.sleep(10)
 

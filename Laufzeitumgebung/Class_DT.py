@@ -139,6 +139,7 @@ class Asset_Digital_Twin(Digital_Twin):
                 Sensoreinheit = Nachricht["Messwert"]["Einheit"]
                 Sensorwert = Nachricht["Messwert"][Sensorname]
                 Messpunkt = Point("Messwerte").tag("Sensor", Sensorname).field(Sensoreinheit, Sensorwert)
+
                 self.DB_Client.Schreiben(self.Name, Messpunkt)
 
                 '''Status prüfen und ggf. Handlung publishen. Error Handling, da zu Beginn noch nicht für alle Sensoren
@@ -168,9 +169,6 @@ class Asset_Digital_Twin(Digital_Twin):
                 break
 
 
-
-
-
 class Product_Demand_Digital_Twin(Digital_Twin):
     def __init__(self, Name, Typ, Broker_1, Broker_2, Bedarf):
         super().__init__(Name, Typ, Broker_1, Broker_2)
@@ -191,9 +189,13 @@ class Product_Demand_Digital_Twin(Digital_Twin):
             Güte_Hersteller = {}
             if Nachricht != "Kill":
                 for item in Nachricht:
+
                     Kriterien_Liste = {}
                     Liste = Nachricht[item]
-                    if Liste == []:
+
+                    '''Falls für einen Schritt keine in der Laufzeitumgebung aktiven Twins vorhanden sind schläft der
+                    PDDT und sendet anschließend erneut seinen Bedarf.'''
+                    if all(item is None for item in Liste):
                         time.sleep(10)
                         self.Broker_2.publish(self.Topic + "/Bedarf",
                                               json.dumps({"Name": self.Name, "Bedarf": self.Bedarf}), Qos=2)
@@ -255,14 +257,15 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                                (1 + Liste_Hersteller[Schritt][DT]["Fehlerquote"])
                         Güte_Liste[DT] = Güte
                         Güte_Hersteller[Schritt] = Güte_Liste
-
+                print("Für "+ self.Name + ": " + json.dumps(Liste_Hersteller, indent=4))
+                print("Für "+ self.Name + ": " + json.dumps(Güte_Hersteller, indent=4))
 
                 '''Hersteller mit für jeden Schritt mit minimalen Kriterien auswählen'''
                 Hersteller = {}
                 for Schritt in Güte_Hersteller:
                     MinWert = min(Güte_Hersteller[Schritt], key=Güte_Hersteller[Schritt].get)
                     Hersteller[Schritt] = MinWert
-                print("Für "+ self.Name + " " + str(Hersteller))
+                print("Für "+ self.Name + ": " + str(Hersteller))
 
                 '''Auftrag für jeden Hersteller versenden'''
                 for DT in Hersteller:

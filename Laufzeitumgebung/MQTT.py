@@ -22,7 +22,7 @@ class MQTT:
 
     def publish(self, Topic, Payload, Qos=0):
         self.client.publish(Topic, Payload, Qos)
-        print("Nachricht gepublisht")
+        #print("Nachricht gepublisht")
 
     def on_message(self, client, userdata, msg):
         Topic = msg.topic

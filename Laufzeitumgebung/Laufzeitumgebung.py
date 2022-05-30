@@ -1,9 +1,10 @@
 import json
 import threading
+import time
 from Class_DT import Digital_Twin, Asset_Digital_Twin, Product_Demand_Digital_Twin
 from MQTT import MQTT
 import uvicorn
-from fastapi import FastAPI
+from fastapi import FastAPI, Query
 from Class_Server import Server
 from Class_Influxdb import Influxdb
 from Class_Ontologie import Ontologie
@@ -15,8 +16,8 @@ import os
 '''Variablen für MQTT-Broker 1'''
 _username1 = "Framework_Broker1"
 _passwd1 = ""
-#_host1 = "host.docker.internal" #zum Container Erstellen
-_host1 = "127.0.0.1" # Betrieb über die IDE
+_host1 = "host.docker.internal" #zum Container Erstellen
+#_host1 = "127.0.0.1" # Betrieb über die IDE
 _port1 = 1883
 _timeout1 = 60
 _topic_sub1 = "Laufzeitumgebung/#"
@@ -24,8 +25,8 @@ _topic_sub1 = "Laufzeitumgebung/#"
 '''Variablen für MQTT-Broker 2'''
 _username2 = "Framework_Broker2"
 _passwd2 = ""
-#_host2 = "host.docker.internal" #zum Container Erstellen
-_host2 = "127.0.0.1" # Betrieb über die IDE
+_host2 = "host.docker.internal" #zum Container Erstellen
+#_host2 = "127.0.0.1" # Betrieb über die IDE
 _port2 = 1884
 _timeout2 = 60
 _topic_sub2 = "Laufzeitumgebung/#"
@@ -34,14 +35,15 @@ _topic_sub2 = "Laufzeitumgebung/#"
 Event = threading.Event()
 
 '''Variablen für Influxdb'''
-#url = "host.docker.internal:" + "8086" #zum Container Erstellen
-url = "127.0.0.1:" + "8086" #zum Container Erstellen
+url = "host.docker.internal:" + "8086" #zum Container Erstellen
+#url = "127.0.0.1:" + "8086" #Betrieb über die IDE
 token = "uO8aNM5-r4unhLY-bfu7q21_lbo4epMzGZjDY_EGo-a5A5taErG9nQA7jxovh2cSh4_NUyixSVJiM-jDEAPfWQ==" #Docker Compose
-#token = "-DnCnjPN_w0JbBzX6cPLMqdoSyJsne31lj4985R88bRj1pCp_Bi_434T5dwHgq1klKGLumx2joHU65P3l1M0cQ==" #Docker Container
+#token = "-DnCnjPN_w0JbBzX6cPLMqdoSyJsne31lj4985R88bRj1pCp_Bi_434T5dwHgq1klKGLumx2joHU65P3l1M0cQ==" #Betrieb über die IDE
 org = "Laufzeitumgebung"
 
 '''Weitere Variablen'''
 ListeDTs = []
+startZeit = time.time()
 
 def Nachricht_auswerten_Broker_1(Topic, Nachricht):
     '''Wertet die eingehende Nachricht auf dem Broker 1 anhand des Topics aus
@@ -300,38 +302,23 @@ async def Sensorwerte_Twin(Name, Sensor):
 '''Gibt den angegebenen DTs oder die ausgewählten Inhalte zurück. Attribute sind optional Query-Parameter.
 In Url: http://127.0.0.1:7000/{Name}?Attribut1=Attribut&Attribut2=Attribut...'''
 @App.get("/{Name}")
-async def Twins(Name, Attribut1=None, Attribut2 =None, Attribut3=None, Attribut4=None, Attribut5= None):
+async def Twins(Name, Attribute: list[str] = Query(None)):
     Twin = getTwin(Name)
+
     '''Error Handling, fall der gesuchte Twin noch nicht instanziiert wurde.'''
     if Twin == None:
         return "Gesuchter Twin nicht vorhanden"
+
     else:
-        if Attribut1 == None:
+        if Attribute == None:
             Twin = Twin.Ich_bin()
             return Twin
+
         else:
-            if Attribut1 == None:
-                Twin = Twin.Ich_bin()
-                return Twin
-            elif Attribut1 != None:
-                if Attribut2 == None:
-                    Twin = Twin.Ich_bin()[Attribut1]
-                    return Twin
-                elif Attribut2 != None:
-                    if Attribut3 == None:
-                        Twin = Twin.Ich_bin()[Attribut1][Attribut2]
-                        return Twin
-                    elif Attribut3 != None:
-                        if Attribut4 == None:
-                            Twin = Twin.Ich_bin()[Attribut1][Attribut2][Attribut3]
-                            return Twin
-                        elif Attribut4 != None:
-                            if Attribut5 == None:
-                                Twin = Twin.Ich_bin()[Attribut1][Attribut2][Attribut3][Attribut4]
-                                return Twin
-                            elif Attribut5 != None:
-                                Twin = Twin.Ich_bin()[Attribut1][Attribut2][Attribut3][Attribut4][Attribut5]
-                                return Twin
+            Twin = Twin.Ich_bin()
+            for item in Attribute:
+                Twin = Twin[item]
+            return Twin
 
 '''Erstellt einen DT vom Typ PDDT Test URL: http://127.0.0.1:7000/PDDT/Test/%7B%22Schritt%201%22%3A%20%7B%22Production
 Service%22%3A%20%22DrillingService%22%2C%20%22TypeOfMaterial%22%3A%20%22Metal%22%2C%20%22Geometrie%22%3A%20%22Kreis%22
@@ -350,8 +337,8 @@ async def PDDT_Erstellen(Name, Bedarf):
     return "PDDT wurde erstellt"
 
 '''Stoppt die Instanz des angegebenen Broker, ändert den Broker und startet die Instanz neu'''
-@App.put("/change/{Broker}/{Username}/{Passwort}/{Host}/{Port}")
-async def change_Broker(Broker, Username, Passwort, Host, Port):
+@App.put("/change/{Broker}/{Host}/{Port}")
+async def change_Broker(Broker, Host, Port,Username="", Passwort=""):
     if Broker == "Broker_1":
         Broker_1.publish("Laufzeitumgebung/Broker_Change", json.dumps({"Broker": Broker, "Username": Username,
         "Passwort": Passwort, "Host": Host, "Port": Port}), Qos=2)
@@ -365,7 +352,6 @@ async def change_Broker(Broker, Username, Passwort, Host, Port):
 
     elif Broker == "Broker_2":
         Broker_2.client.loop_stop()
-        Broker_2.client.loop_stop()
         Broker_2._username = Username
         Broker_2._passwd = Passwort
         Broker_2._host = Host
@@ -376,13 +362,20 @@ async def change_Broker(Broker, Username, Passwort, Host, Port):
     else:
         return "Angegebener Broker existiert nicht"
 
-'''Ändert die Datenbank Test URL:http://127.0.0.1:7000/change/DB/192.168.178.70%3A8086/-DnCnjPN_w0JbBzX6cPLMqdoSyJsne31l
-j4985R88bRj1pCp_Bi_434T5dwHgq1klKGLumx2joHU65P3l1M0cQ%3D%3D/Laufzeitumgebung'''
+'''Ändert die Datenbank Test URL:http://127.0.0.1:7000/change/DB/host.docker.internal%3A9999/oaDobTgt6NufUHzJYmvI67U6oW
+neMdUP2bW1jjtl6bwZBSMAGekZUyETix5XGe0YCI-rufhSGrNSBWb-G7JG_w%3D%3D/Laufzeitumgebung'''
 @App.put("/change/DB/{URL}/{Token}/{Org}")
-async def change_Broker(URL, Token, Org):
+async def change_DB(URL, Token, Org):
     DB_Client.url = URL
     DB_Client.token = Token
     DB_Client.org = Org
+
+    '''Error Handling, Falls die Datenbank geändert wird und noch kein Bucket angelegt wurde'''
+    for Twin in ListeDTs:
+        if Twin.Typ == "ADT":
+            DB_Client.New_Bucket(Twin.Name)
+            print("Neues Bucket für " + Twin.Name + " in der neuen DB angelegt")
+
     return "Datenbank wurde geändert"
 
 '''Beendet die Ausführung eines DTs und entfernt sein json file, um einen Neustart zu verhindern'''
@@ -408,6 +401,7 @@ https://stackoverflow.com/questions/62898917/running-fastapi-app-using-uvicorn-o
 config = uvicorn.Config(App, host="0.0.0.0", port=7000, log_level="info")
 server = Server(config=config)
 
+
 with server.run_in_thread():
     # Server is started.
     '''Anzahl Twins muss einmal vor der Schleife definiert werden um jeder Zeit über die API zugreifen zu können.'''
@@ -431,13 +425,20 @@ with server.run_in_thread():
     print(str(len(ListeDTs)) + " DTs laufen")
 
     while True:
-        Event.wait()
-        Event.clear()
         '''Laufzeitumgebung wartet bis sich ein Objekt in der Queue des Broker 1 oder 2 befindet.
         Dann wird das Event wieder auf False gestellt und die Laufzeitumgebung wartet
         nach dem Durchlaufen der Schleife wieder.'''
+        Event.wait()
+        Event.clear()
+
+        '''Gibt alle 5 Seconden die Anzahl der in der Lafuzeitumgebung aktiven DTs aus. Dadurch wird die Ausgabe nicht
+        mit Nachrichten überflutet. https://stackoverflow.com/questions/70544320/how-to-print-every-x-seconds-while-rest
+        -of-code-runs-without-being-stopped'''
+        aktuelleZeit = time.time()
         AnzahlTwins = len(ListeDTs)
-        print(str(len(ListeDTs)) + " DTs laufen")
+        if aktuelleZeit - startZeit >= 5:
+            print(str(len(ListeDTs)) + " DTs laufen")
+            startZeit = aktuelleZeit
 
         if Broker_1.Q.empty() == False:
             '''Nachrichten von Broker 1 verarbeiten.
