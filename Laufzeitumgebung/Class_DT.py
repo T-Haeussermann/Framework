@@ -125,7 +125,7 @@ class Asset_Digital_Twin(Digital_Twin):
                 DMP:""" + self.Name + """ DMP:offersProductionService DMP:""" + offersProductionService + """ .\n
                 DMP:""" + self.Name + """ DMP:processToM DMP:""" + TypeOfMaterial + """ .\n""" + Dimensionen +\
                 Preise + Zeiten + """
-                DMP:""" + self.Name + """ DMP:Fehlerquote \"^^""" + str(Fehlerquote) + """\"^^xsd:decimal
+                DMP:""" + self.Name + """ DMP:Fehlerquote \"""" + str(Fehlerquote) + """\"^^xsd:decimal
             }"""
             self.Ontologie_Client.Anlegen(Insert)
 

@@ -30,8 +30,7 @@ Bedarf = json.dumps({"Schritt 1": {"ProductionService": "DrillingService", "Type
                                                    "Depth": 30.0, "Thickness": 55.0}},
                      "Schritt 4": {"ProductionService": "WeldingService", "TypeOfMaterial": "Metal",
                                    "Geometrie": "Rechteck",
-                                   "Dimensionen": {"LengthResource": 15.0, "WidthResource": 5.0,
-                                                   "Thickness": 55.0}}})
+                                   "Dimensionen": {"LengthResource": 15.0, "Thickness": 55.0}}})
 Bedarf = json.loads(Bedarf)
 
 """Alle benötigten Topics werden hier definiert"""
