@@ -226,22 +226,22 @@ class Product_Demand_Digital_Twin(Digital_Twin):
                                 Bezugsgroeße = Flaeche
 
                             elif Bedarf["ProductionService"] == "WeldingService":
-                                Laenge = (Bedarf["Dimensionen"]["LengthResource"] * Bedarf["Dimensionen"]["WidthResource"])
+                                Laenge = Bedarf["Dimensionen"]["LengthResource"]
                                 Bezugsgroeße = Laenge
 
                         '''Preis für das oben berechnete Zerspanungsvolumen berechnen'''
                         if Twin["Preise"]["priceFunction"] == "linear":
-                            Preis = Twin["Preise"]["Steigung"] * Bezugsgroeße + Twin["Preise"]["Abschnitt"]
+                            Preis = Twin["Preise"]["SteigungPreis"] * Bezugsgroeße + Twin["Preise"]["AbschnittPreis"]
 
                         elif Twin["Preise"]["priceFunction"] == "exponentiell":
-                            Preis = math.exp(Twin["Preise"]["Exponent"]) * Bezugsgroeße + Twin["Preise"]["Abschnitt"]
+                            Preis = math.exp(Twin["Preise"]["ExponentPreis"]) * Bezugsgroeße + Twin["Preise"]["AbschnittPreis"]
 
                         '''Zeit für das oben berechnete Zerspanungsvolumen berechnen'''
                         if Twin["Zeiten"]["timeFunction"] == "linear":
-                            Zeiten = Twin["Zeiten"]["Steigung"] * Bezugsgroeße + Twin["Zeiten"]["Abschnitt"]
+                            Zeiten = Twin["Zeiten"]["SteigungZeit"] * Bezugsgroeße + Twin["Zeiten"]["AbschnittZeit"]
 
                         elif Twin["Zeiten"]["timeFunction"] == "exponentiell":
-                            Zeiten = math.exp(Twin["Zeiten"]["Exponent"]) * Bezugsgroeße + Twin["Zeiten"]["Abschnitt"]
+                            Zeiten = math.exp(Twin["Zeiten"]["ExponentZeit"]) * Bezugsgroeße + Twin["Zeiten"]["AbschnittZeit"]
 
                         Fehlerquote = Twin["Fehlerquote"]
 

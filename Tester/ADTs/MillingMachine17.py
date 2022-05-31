@@ -29,10 +29,10 @@ Skill = json.loads(Skill)
 
 
 '''Entscheidungsvariablen für die Vergabe von Aufträgen'''
-Preise = json.dumps({"priceFunction": "exponentiell", "Exponent": 1.0, "Abschnitt": 50.0})
+Preise = json.dumps({"priceFunction": "exponentiell", "ExponentPreis": 1.0, "AbschnittPreis": 50.0})
 Preise = json.loads(Preise)
 
-Zeiten = json.dumps({"timeFunction": "exponentiell", "Exponent": 0.5, "Abschnitt": 20.0})
+Zeiten = json.dumps({"timeFunction": "exponentiell", "ExponentZeit": 0.5, "AbschnittZeit": 20.0})
 Zeiten = json.loads(Zeiten)
 
 Fehlerquote = 0.1
@@ -64,7 +64,7 @@ def on_message(client, userdata, msg):
                 print("Handlung : " + Handlungen[Sensor] + " eingeleitet")
 
     elif "Fertigung" in Topic:
-        print("Ich stelle jetzt " + str(Nachricht["Bedarf"]) + " für " + str(Nachricht["Auftraggeber"]) + " her!")
+        print("Ich stelle im " + Nachricht["Schritt"] + " " + str(Nachricht["Bedarf"]) + " für " + str(Nachricht["Auftraggeber"]) + " her!")
 
     elif "Broker_Change" in Topic:
         _username = Nachricht["Username"]
