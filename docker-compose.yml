@@ -8,6 +8,11 @@ services:
     build:
       context: .
       dockerfile: ./Dockerfile
+    depends_on:
+      - Broker_1
+      - Broker_2
+      - Influxdb
+
     restart: always
     expose:
       - 1883
