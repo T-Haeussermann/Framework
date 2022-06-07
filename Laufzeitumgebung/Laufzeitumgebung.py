@@ -378,21 +378,31 @@ async def change_DB(URL, Token, Org):
 
     return "Datenbank wurde geändert"
 
-'''Beendet die Ausführung eines DTs und entfernt sein json file, um einen Neustart zu verhindern'''
+'''Beendet die Ausführung eines DTs und entfernt sein json file, um einen Neustart zu verhindern. all entfernt alle DTs'''
 @App.delete("/kill/{Name}")
 async def kill(Name):
-    threadtokill = getTwin(Name)
-    if threadtokill is not None:
-        os.remove("DT Files/" + Name + ".json")
-        ListeDTs.remove(threadtokill)
-        threadtokill.Q.put("Kill")
-        if threadtokill.Typ == "ADT":
-            Ontologie_Client.Löschen(Name)
-        print(str(len(ListeDTs)) + " DTs laufen")
-        return "Digital Twin wurde gelöscht"
+    if Name != "all":
+        threadtokill = getTwin(Name)
+        if threadtokill is not None:
+            os.remove("DT Files/" + Name + ".json")
+            ListeDTs.remove(threadtokill)
+            threadtokill.Q.put("Kill")
+            if threadtokill.Typ == "ADT":
+                Ontologie_Client.Löschen(Name)
+            print(str(len(ListeDTs)) + " DTs laufen")
+            return "Digital Twin wurde gelöscht"
 
-    else:
-        return "Digital Twin existiert nicht"
+        else:
+            return "Digital Twin existiert nicht"
+    if Name == "all":
+        for Twin in ListeDTs:
+            os.remove("DT Files/" + Twin.Name + ".json")
+            Twin.Q.put("Kill")
+            if Twin.Typ == "ADT":
+                Ontologie_Client.Löschen(Twin.Name)
+        ListeDTs.clear()
+        print(str(len(ListeDTs)) + " DTs laufen")
+
 
 '''Server für API instanziieren
 https://stackoverflow.com/questions/61577643/python-how-to-use-fastapi-and-uvicorn-run-without-blocking-the-thread
