@@ -28,20 +28,20 @@ SELECT ?ProductionResource ?Service ?TypeOfMaterial
 WHERE {
                ?ProductionResource DMP:processToM ?TypeOfMaterial .
                ?ProductionResource DMP:offersProductionService ?Service .
-               FILTER (?minDiameterHoleResource < 10 ||
-                       ?maxDiameterHoleResource > 10)
 }""")
+#FILTER (?minDiameterHoleResource < 10 && ?maxDiameterHoleResource > 10)
 
 # Convert results to JSON format
 sparql.setReturnFormat(JSON)
 result = sparql.query().convert()
+print(sparql.query())
 
 # for item in result["results"]["bindings"]:
 #     print(item["o"]["value"])
 
 
-print(json.dumps(result,sort_keys=True, indent=4))
-print(type(result))
+print(json.dumps(result, sort_keys=True, indent=4))
+print(result)
 #
 for hit in result["results"]["bindings"]:
     for item in hit:

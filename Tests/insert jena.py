@@ -15,7 +15,7 @@ P = ""
 
 for item in Preise:
     P = P + "DMP:Tester_ADT DMP:" + item + " " + "\"" + str(Preise[item]) + "\"^^xsd:decimal .\n"
-print(P)
+
 # Query
 sparql.setQuery("""
 PREFIX DMP: <http://www.semanticweb.org/lober/ontologies/2022/1/DMP#>
@@ -25,14 +25,16 @@ PREFIX rdfs: <http://www.w3.org/2000/01/rdf-schema#>
 PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
 INSERT DATA {
-    DMP:Tester_ADT rdf:type owl:NamedIndividual ,
+    DMP:PTM2 rdf:type owl:NamedIndividual ,
     DMP:Resource .
-    DMP:Tester_ADT DMP:diameterHoleResource "0.015"^^xsd:decimal .
-    DMP:Tester_ADT DMP:maxThickness "0.06"^^xsd:decimal .
-    DMP:Tester_ADT DMP:minThickness  "0.02"^^xsd:decimal .\n"""
-    + P + """
-    DMP:Tester_ADT DMP:offersProductionService DMP:DrillingService .
-    DMP:Tester_ADT DMP:processToM DMP:Metal .
+    DMP:PTM2 DMP:offersProductionService DMP:DrillingService .
+    DMP:PTM2 DMP:processToM DMP:Metal .
+    DMP:PTM2 DMP:minDepth "1.0"^^xsd:decimal .
+    DMP:PTM2 DMP:maxDepth "10.0"^^xsd:decimal .
+    DMP:PTM2 DMP:minDiameterHoleResource "1.0"^^xsd:decimal .
+    DMP:PTM2 DMP:maxDiameterHoleResource "10.0"^^xsd:decimal .
+    DMP:PTM2 DMP:minThickness "1.0"^^xsd:decimal .
+    DMP:PTM2 DMP:maxThickness "10.0"^^xsd:decimal .
 }
 
 """)
@@ -40,4 +42,7 @@ INSERT DATA {
 
 # Methode definieren und ausführen
 sparql.method = "POST"
-sparql.query()
+results = sparql.query().info()# .convert()
+
+
+print(sparql)

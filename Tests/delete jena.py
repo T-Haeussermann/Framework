@@ -18,7 +18,7 @@ PREFIX xsd:  <http://www.w3.org/2001/XMLSchema#>
 
 DELETE {?ProductionResource ?Service ?Material} 
 WHERE {?ProductionResource ?Service ?Material
-FILTER (?ProductionResource = DMP:MillingMachine17)
+FILTER (?ProductionResource = DMP:Tester_ADT)
 }
 
 """)

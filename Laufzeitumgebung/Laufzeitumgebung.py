@@ -395,6 +395,8 @@ async def kill(Name):
         else:
             return "Digital Twin existiert nicht"
     if Name == "all":
+        with Broker_1.Q.mutex:
+            Broker_1.Q.queue.clear()
         for Twin in ListeDTs:
             os.remove("DT Files/" + Twin.Name + ".json")
             Twin.Q.put("Kill")
